@@ -1,0 +1,1463 @@
+  <!DOCTYPE html>
+  <html lang="vi">
+  <head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Shopee</title>
+  <style>
+    /* Reset and base */
+    * {
+      margin: 0; padding: 0; box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    body {
+      background-color: #fff;
+      color: #333;
+    }
+    a {text-decoration:none; color:inherit;}
+    ul {list-style:none;}
+    button, input, select, textarea {
+      font-family: inherit;
+      font-size: 1rem;
+    }
+    button {cursor:pointer;}
+
+    /* Header */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background-color: #ee4d2d;
+      padding: 0.6rem 1rem;
+      position: sticky;
+      top: 0;
+      z-index: 500;
+      box-shadow: 0 2px 8px rgb(0 0 0 / 0.1);
+    }
+    .logo {
+      color: white;
+      font-size: 1.8rem;
+      font-weight: 800;
+      user-select: none;
+    }
+    .search-bar {
+      flex: 1;
+      max-width: 500px;
+      margin: 0 1rem;
+      position: relative;
+    }
+    .search-bar input {
+      width: 100%;
+      padding: 0.6rem 2.5rem 0.6rem 1rem;
+      border: none;
+      border-radius: 4px;
+      font-size: 1rem;
+    }
+    .search-bar button {
+      position: absolute;
+      right: 4px;
+      top: 50%;
+      transform: translateY(-50%);
+      border: none;
+      background: transparent;
+      color: #999;
+      font-size: 1.2rem;
+    }
+    .header-icons {
+      display: flex;
+      align-items: center;
+      gap: 1.2rem;
+      color: white;
+      font-size: 1.5rem;
+      cursor: pointer;
+      position: relative;
+    }
+    .cart-icon, .user-icon, .wishlist-icon {
+      position: relative;
+    }
+    .cart-count, .wishlist-count {
+      position: absolute;
+      top: -8px;
+      right: -10px;
+      background: #f44336;
+      border-radius: 50%;
+      color: white;
+      font-size: 0.75rem;
+      width: 18px;
+      height: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      user-select: none;
+    }
+
+    /* Categories */
+    nav.categories {
+      background-color: #fff6f4;
+      padding: 0.5rem 0;
+      box-shadow: 0 2px 4px rgb(0 0 0 / 0.05);
+      display: flex;
+      justify-content: center;
+    }
+    nav.categories ul {
+      display: flex;
+      gap: 1.3rem;
+      flex-wrap: wrap;
+    }
+    nav.categories li {
+      padding: 0.25rem 0.75rem;
+      background-color: #ff5722;
+      color: white;
+      font-weight: 600;
+      border-radius: 20px;
+      cursor: pointer;
+      user-select: none;
+      transition: background-color 0.3s ease;
+    }
+    nav.categories li.active,
+    nav.categories li:hover {
+      background-color: #ee4d2d;
+    }
+
+    /* Main */
+    main {
+      max-width: 1200px;
+      margin: 1rem auto;
+      padding: 0 1rem;
+      min-height: 80vh;
+    }
+
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill,minmax(220px,1fr));
+      gap: 1rem;
+    }
+    .product-card {
+      border: 1px solid #eee;
+      border-radius: 6px;
+      padding: 0.6rem;
+      background: white;
+      display: flex;
+      flex-direction: column;
+      transition: box-shadow 0.3s ease;
+      cursor: pointer;
+    }
+    .product-card:hover {
+      box-shadow: 0 6px 10px rgba(0,0,0,0.1);
+    }
+    .product-image {
+      width: 100%;
+      height: 180px;
+      object-fit: contain;
+      border-radius: 4px;
+      margin-bottom: 0.6rem;
+    }
+    .product-name {
+      font-weight: 600;
+      font-size: 1rem;
+      height: 45px;
+      overflow: hidden;
+      margin-bottom: 0.3rem;
+    }
+    .product-price {
+      color: #ee4d2d;
+      font-weight: 700;
+      font-size: 1.1rem;
+      margin-bottom: 0.5rem;
+    }
+    .add-cart-btn {
+      background: #ee4d2d;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      padding: 0.5rem;
+      font-weight: 700;
+      transition: background-color 0.3s ease;
+    }
+    .add-cart-btn:hover {
+      background-color: #ca3b20;
+    }
+
+    /* Product modal */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1050;
+    }
+    .modal-overlay.active {
+      display: flex;
+    }
+    .modal-content {
+      background: white;
+      max-width: 700px;
+      width: 90vw;
+      max-height: 90vh;
+      border-radius: 8px;
+      padding: 1rem 1.5rem;
+      overflow-y: auto;
+      position: relative;
+    }
+    .modal-close {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      font-size: 2rem;
+      font-weight: 700;
+      cursor: pointer;
+      color: #999;
+    }
+    .modal-close:hover {
+      color: #ee4d2d;
+    }
+    .modal-images {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    .modal-images img {
+      max-height: 260px;
+      object-fit: contain;
+      border-radius: 4px;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: border-color 0.3s ease;
+    }
+    .modal-images img.active {
+      border-color: #ee4d2d;
+    }
+    .modal-main-image {
+      width: 100%;
+      height: 300px;
+      object-fit: contain;
+      margin-bottom: 1rem;
+      border-radius: 6px;
+    }
+    .modal-name {
+      font-weight: 700;
+      font-size: 1.5rem;
+      margin-bottom: 0.8rem;
+    }
+    .modal-price {
+      font-weight: 700;
+      font-size: 1.3rem;
+      color: #ee4d2d;
+      margin-bottom: 1rem;
+    }
+    .modal-description {
+      margin-bottom: 2rem;
+      line-height: 1.5;
+      white-space: pre-line;
+    }
+    .modal-add-cart-btn {
+      display: block;
+      background: #ee4d2d;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      padding: 0.75rem;
+      font-size: 1.1rem;
+      font-weight: 700;
+      cursor: pointer;
+      width: 100%;
+      transition: background-color 0.3s ease;
+    }
+    .modal-add-cart-btn:hover {
+      background-color: #ca3b20;
+    }
+
+    /* Cart sidebar */
+    .cart-sidebar {
+      position: fixed;
+      top: 0;
+      right: -400px;
+      width: 360px;
+      height: 100vh;
+      background-color: white;
+      box-shadow: -3px 0 15px rgba(0,0,0,0.3);
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      transition: right 0.3s ease;
+      z-index: 1100;
+    }
+    .cart-sidebar.open {
+      right: 0;
+    }
+    .cart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+    .cart-header h2 {
+      font-weight: 700;
+      color: #ee4d2d;
+    }
+    .close-cart {
+      font-size: 1.7rem;
+      cursor: pointer;
+      color: #555;
+    }
+    .cart-items {
+      flex: 1;
+      overflow-y: auto;
+      margin-bottom: 1rem;
+    }
+    .cart-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 0.5rem;
+    }
+    .cart-item img {
+      width: 60px;
+      height: 60px;
+      object-fit: contain;
+      border-radius: 4px;
+      border: 1px solid #ddd;
+    }
+    .cart-item-details {
+      flex: 1;
+    }
+    .cart-item-name {
+      font-weight: 600;
+      font-size: 0.9rem;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      margin-bottom: 0.3rem;
+    }
+    .cart-item-price {
+      color: #ee4d2d;
+      font-weight: 700;
+      font-size: 0.9rem;
+      margin-bottom: 0.3rem;
+    }
+    .cart-qty-controls {
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+    .qty-btn {
+      background: #eee;
+      border: none;
+      padding: 0 0.6rem;
+      font-size: 1.2rem;
+      cursor: pointer;
+      border-radius: 3px;
+    }
+    .qty-count {
+      font-weight: 700;
+      min-width: 24px;
+      text-align: center;
+    }
+    .remove-item-btn {
+      background: transparent;
+      border: none;
+      color: #f44336;
+      font-weight: 700;
+      font-size: 1.1rem;
+      cursor: pointer;
+    }
+    .cart-footer {
+      border-top: 1px solid #eee;
+      padding-top: 1rem;
+    }
+    .cart-total {
+      font-weight: 700;
+      font-size: 1.3rem;
+      margin-bottom: 1rem;
+    }
+    .checkout-btn {
+      background: #ee4d2d;
+      color: white;
+      border: none;
+      font-weight: 700;
+      padding: 0.75rem;
+      width: 100%;
+      cursor: pointer;
+      border-radius: 5px;
+      font-size: 1.1rem;
+      transition: background-color 0.3s ease;
+    }
+    .checkout-btn:hover:not(:disabled) {
+      background: #ca3b20;
+    }
+    .checkout-btn:disabled {
+      background: #ffa290;
+      cursor: not-allowed;
+    }
+
+    /* Login modal */
+    .login-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1200;
+    }
+    .login-overlay.active {
+      display: flex;
+    }
+    .login-box {
+      background: white;
+      padding: 2rem;
+      border-radius: 8px;
+      max-width: 400px;
+      width: 90vw;
+      box-shadow: 0 0 20px rgba(0,0,0,0.3);
+    }
+    .login-box h2 {
+      margin-bottom: 1rem;
+      color: #ee4d2d;
+    }
+    .login-box label {
+      display: block;
+      font-weight: 700;
+      margin-bottom: 0.3rem;
+    }
+    .login-box input {
+      width: 100%;
+      margin-bottom: 1rem;
+      padding: 0.5rem;
+      font-size: 1rem;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+    }
+    .login-box button {
+      width: 100%;
+      padding: 0.7rem;
+      background: #ee4d2d;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-weight: 700;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    .login-box button:hover {
+      background: #ca3b20;
+    }
+    .login-close {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      font-weight: 700;
+      font-size: 1.3rem;
+      cursor: pointer;
+    }
+
+    /* Profile page */
+    #profilePage {
+      max-width: 900px;
+      margin: 2rem auto;
+      background: #fff6f4;
+      border-radius: 10px;
+      padding: 2rem;
+      box-shadow: 0 0 20px rgb(0 0 0 / 0.1);
+      display: none;
+    }
+    #profilePage.active {
+      display: block;
+    }
+    #profilePage h2 {
+      color: #ee4d2d;
+      margin-bottom: 1.5rem;
+    }
+    #profilePage label {
+      display: block;
+      margin-bottom: 0.3rem;
+      font-weight: 700;
+    }
+    #profilePage input {
+      width: 100%;
+      padding: 0.5rem;
+      margin-bottom: 1rem;
+      font-size: 1rem;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+    #profilePage button {
+      background: #ee4d2d;
+      color: white;
+      padding: 0.7rem 1rem;
+      font-weight: 700;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 1.1rem;
+      transition: background-color 0.3s ease;
+    }
+    #profilePage button:hover {
+      background: #ca3b20;
+    }
+
+    /* Responsive */
+    @media(max-width: 768px) {
+      .product-grid {
+        grid-template-columns: repeat(auto-fill,minmax(150px,1fr));
+      }
+      nav.categories ul {
+        gap: 0.6rem;
+      }
+    }
+  </style>
+  </head>
+  <body>
+
+  <header>
+    <div class="logo">shopee<span style="color:#fff200;">.</span>vn</div>
+    <div class="search-bar" role="search">
+      <input id="searchInput" type="search" placeholder="Tìm kiếm sản phẩm hoặc thương hiệu" aria-label="Tìm kiếm sản phẩm" />
+      <button id="searchBtn" aria-label="Thực hiện tìm kiếm">&#128269;</button>
+    </div>
+    <div class="header-icons" role="group" aria-label="Chức năng">
+      <div class="wishlist-icon" id="wishlistIcon" title="Yêu thích" tabindex="0" role="button" aria-label="Yêu thích">&#10084;<span class="wishlist-count" id="wishlistCount" style="display:none;">0</span></div>
+      <div class="cart-icon" id="cartIcon" title="Giỏ hàng" tabindex="0" role="button" aria-label="Giỏ hàng">&#128722;<span class="cart-count" id="cartCount" style="display:none;">0</span></div>
+      <div class="user-icon" id="userIcon" title="Đăng nhập / Tài khoản" tabindex="0" role="button" aria-label="Đăng nhập / Tài khoản" onclick="window.location.href='profile.html'">&#128100;</div>
+    </div>
+  </header>
+
+  <nav class="categories" aria-label="Danh mục sản phẩm">
+    <ul id="categoryList">
+      <li class="active" data-category="all" tabindex="0" role="button" aria-pressed="true">Tất cả</li>
+      <li data-category="thietbi" tabindex="0" role="button" aria-pressed="false">Thiết bị điện tử</li>
+      <li data-category="thoitrang" tabindex="0" role="button" aria-pressed="false">Thời trang</li>
+      <li data-category="lamdep" tabindex="0" role="button" aria-pressed="false">Làm đẹp</li>
+      <li data-category="giadung" tabindex="0" role="button" aria-pressed="false">Gia dụng</li>
+    </ul>
+  </nav>
+
+  <main>
+    <div id="productGrid" class="product-grid" aria-live="polite" aria-relevant="additions removals"></div>
+  </main>
+
+  <!-- Cart Sidebar -->
+  <div class="cart-sidebar" id="cartSidebar" aria-hidden="true" aria-label="Giỏ hàng" role="dialog" aria-modal="true">
+    <div class="cart-header">
+      <h2>Giỏ hàng</h2>
+      <span class="close-cart" id="closeCartBtn" title="Đóng giỏ hàng" role="button" tabindex="0" aria-label="Đóng giỏ hàng">&times;</span>
+    </div>
+    <div class="cart-items" id="cartItemsContainer" tabindex="0"></div>
+    <div class="cart-footer">
+      <div class="cart-total" id="cartTotal" aria-live="polite" aria-atomic="true">Tổng: 0₫</div>
+      <button class="checkout-btn" id="checkoutBtn" disabled>Thanh toán</button>
+    </div>
+  </div>
+
+  <!-- Wishlist Sidebar -->
+  <div class="cart-sidebar" id="wishlistSidebar" aria-hidden="true" aria-label="Danh sách yêu thích" role="dialog" aria-modal="true" style="right:-400px; background:#fff6f4;">
+    <div class="cart-header">
+      <h2>Danh sách yêu thích</h2>
+      <span class="close-cart" id="closeWishlistBtn" title="Đóng danh sách yêu thích" role="button" tabindex="0" aria-label="Đóng danh sách yêu thích">&times;</span>
+    </div>
+    <div class="cart-items" id="wishlistItemsContainer" tabindex="0"></div>
+  </div>
+
+  <!-- Product Detail Modal -->
+  <div class="modal-overlay" id="productModal" role="dialog" aria-modal="true" aria-labelledby="modalProductName" tabindex="-1">
+    <div class="modal-content">
+      <span class="modal-close" id="modalCloseBtn" role="button" tabindex="0" aria-label="Đóng thông tin sản phẩm">&times;</span>
+      <img src="" alt="" class="modal-image" id="modalImage" />
+      <h2 class="modal-name" id="modalProductName"></h2>
+      <p class="modal-price" id="modalPrice"></p>
+      <p class="modal-description" id="modalDescription"></p>
+      <button class="modal-add-cart-btn" id="modalAddCartBtn" aria-label="Thêm vào giỏ hàng">Thêm vào giỏ</button>
+    </div>
+  </div>
+
+  <!-- Payment Modal -->
+  <div class="modal-overlay" id="paymentModal" role="dialog" aria-modal="true" tabindex="-1">
+    <div class="payment-modal-content" role="document">
+      <h2>Chọn phương thức thanh toán</h2>
+      <form id="paymentForm" class="payment-methods">
+        <label><input type="radio" name="paymentMethod" value="creditCard" required /> Thẻ tín dụng/Thẻ ghi nợ</label>
+        <label><input type="radio" name="paymentMethod" value="momo" /> Ví MoMo</label>
+        <label><input type="radio" name="paymentMethod" value="cod" /> Thanh toán khi nhận hàng (COD)</label>
+        <div class="payment-btn-group">
+          <button type="button" id="paymentCancelBtn">Hủy</button>
+          <button type="submit">Thanh toán</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Login Modal -->
+  <div class="login-overlay" id="loginModal" role="dialog" aria-modal="true" tabindex="-1">
+    <div class="login-box">
+      <h2>Đăng nhập</h2>
+      <form id="loginForm">
+        <label for="usernameInput">Tên đăng nhập</label>
+        <input type="text" id="usernameInput" required placeholder="Tên đăng nhập" autocomplete="username"/>
+        <label for="passwordInput">Mật khẩu</label>
+        <input type="password" id="passwordInput" required placeholder="Mật khẩu" autocomplete="current-password" />
+        <button type="submit">Đăng nhập</button>
+      </form>
+      <span class="login-close" id="loginCloseBtn" role="button" tabindex="0" aria-label="Đóng đăng nhập">&times;</span>
+    </div>
+  </div>
+
+  <!-- Profile Page -->
+  <section id="profilePage" aria-live="polite" aria-label="Trang thông tin cá nhân">
+    <h2>Trang cá nhân</h2>
+    <form id="profileForm">
+      <label for="profileUsername">Tên đăng nhập</label>
+      <input type="text" id="profileUsername" disabled />
+      <label for="profileEmail">Email</label>
+      <input type="email" id="profileEmail" placeholder="email@example.com" required />
+      <label for="profilePhone">Điện thoại</label>
+      <input type="tel" id="profilePhone" placeholder="0123456789" />
+      <button type="submit">Cập nhật thông tin</button>
+    </form>
+  </section>
+
+  <!-- Toast notification -->
+  <div class="toast" id="toast" role="alert" aria-live="assertive" aria-atomic="true"></div>
+
+  <script>
+    // PRODUCTS DATA (with multiple images and full description)
+    const products = [
+      {
+        id: 1,
+        name: 'Điện thoại Samsung Galaxy S22',
+        price: 16500000,
+        category: 'thietbi',
+        images: [
+          'https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcSFFiX0p3emMgOOjMiY8VXYwpOZTcmhd8IrX7ep8-z7wEFCKmhFnnaCfyxdK0BfSJKrJC0HMntkdFxhdObgqIPAKdjl2I2xfYn8_U0KXvqSIA8gXl41kKqFBVyKixkwsQ&usqp=CAc',
+        ],
+        description: 'Điện thoại thông minh mới nhất Samsung Galaxy S22, chip mạnh mẽ Exynos 2200, camera sắc nét 50MP, pin lâu dài, màn hình AMOLED 6.1 inch.',
+      },
+      {
+        id: 2,
+        name: 'Tai nghe Bluetooth JBL Tune 510BT',
+        price: 990000,
+        category: 'thietbi',
+        images: [
+          'data:image/webp;base64,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',
+        
+        ],
+        description: 'Tai nghe Bluetooth JBL Tune 510BT chất lượng âm thanh cao, sạc nhanh, pin 40 giờ, thiết kế nhẹ và thời trang phù hợp mọi hoạt động.',
+      },
+      {
+        id: 3,
+        name: 'Áo thun nam cổ tròn basic',
+        price: 99000,
+        category: 'thoitrang',
+        images: [
+          'https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcStHjVSi5NmLFd-ePcdi5uTBx2kfivib7H1bQGdK_dTWMJePKcmXReTs4xOrtgh7jwgxzxFmEQvH1c8H7CZBVY2nS8js2DnHdOqO1Uetuv5jHAvvdCtfBlgA7Vmxv_yB0jHggtyXdg&usqp=CAc',
+        ],
+        description: 'Áo thun nam cổ tròn basic, chất liệu cotton mềm mại, thoáng mát, dễ phối đồ phù hợp mọi dịp.',
+      },
+      {
+        id: 4,
+        name: 'Váy liền nữ công sở',
+        price: 299000,
+        category: 'thoitrang',
+        images: [
+          'https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcS4eqmEVD_8khReShfXaAAJ89B-hmusAujJ27uD7NwwIuyTJz0XtTt7BB4auSFcRInbQYZwC16DeZ1OQFIYLTdUzuoEvSavZPYTJ5s-k_KNAGDTQFkkfCzNPA&usqp=CAc',
+        ],
+        description: 'Váy liền nữ công sở thanh lịch, kiểu dáng hiện đại, chất liệu cao cấp, tạo cảm giác thoải mái cả ngày.',
+      },
+      {
+        id: 5,
+        name: 'Nồi chiên không dầu Lock&Lock',
+        price: 1990000,
+        category: 'giadung',
+        images: [
+          'https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcR0ffviMLXNaXdBylwgiFp4YWgfUvua7iWyOnwtUiYKD5VRGlcaPzaDCGvAxfGdo9WwEhiKA14u1Tn6S9V5j1GS-5Z4dkDuDNl5FvBGAFDH5Fzp4jkasE0vIuJhRkiR9r6YqJZpEw&usqp=CAc',
+        ],
+        description: 'Nồi chiên không dầu Lock&Lock dung tích lớn, công nghệ chiên nướng không dầu, giữ nguyên hương vị và dinh dưỡng.',
+      },
+      {
+        id: 6,
+        name: 'Serum Vitamin C làm sáng da',
+        price: 360000,
+        category: 'lamdep',
+        images: [
+          'https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcT0cYK4dZ35KJuJo8XOaCiTX8BNcy7Y05f-RSoBduTAidXcKXQOTJDaqHHiY8NyTUXu3BqAkeN9ldG8NfvaCFfkGW7KjE5Rgt5kLEhSkbyEkjGgLmscng6K1Q&usqp=CAc',
+        ],
+        description: 'Serum Vitamin C dưỡng da làm sáng, ngăn ngừa nám, chống lão hóa hiệu quả, phù hợp cho mọi loại da.',
+      },
+      {
+      id: 7,
+      name: 'Kem dưỡng ẩm chống nắng SPF50+',
+      price: 250000,
+      category: 'lamdep',
+      images: [
+        'https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcRVDDI3g0alrEQkSfee-KB7IGfYP1LMGSGKZJROBONYDzvSQVCYlsdZY-YCMZaukyYoUthYL_-wP4jaynLr4O0_uuZiOi8Z0-JF8BlByDmxoIKfLF-5ZMQMkg&usqp=CAc',
+      ],
+      description: 'Kem dưỡng ẩm giúp bảo vệ da khỏi tác hại của tia UV và giữ ẩm suốt ngày dài.',
+    },
+    {
+      id: 8,
+      name: 'Máy xay sinh tố đa năng 500W',
+      price: 1200000,
+      category: 'giadung',
+      images: [
+        'https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcQzdgh7lldwqpXFRzLH2DSI7DpGw0EkkthnIF07PBD3_I2NGzw9ocR48dBdeZPzx4HQrOaIC5uBnz0nuNpRlDqka1P6ymUxvBq_JxsYe47t4To8KsCz_MUVs1NWVEuABbZ2lc2jaqgK&usqp=CAc',
+      ],
+      description: 'Máy xay sinh tố công suất lớn, phù hợp cho gia đình, dễ dàng vệ sinh.',
+    },
+    {
+      id: 9,
+      name: 'Áo thun nam cotton thoáng mát',
+      price: 180000,
+      category: 'thoitrang',
+      images: [
+        'data:image/webp;base64,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',
+      ],
+      description: 'Áo thun chất liệu cotton thoáng khí, phù hợp mặc hằng ngày.',
+    },
+    {
+      id: 10,
+      name: 'Tai nghe Bluetooth chống ồn',
+      price: 900000,
+      category: 'thietbi',
+      images: [
+        'https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcSvwOJtqX7cdRheZU8FRHY0mMQx6yqB84WiZnz2Ep8nvWsbyYwuHO-6F2Br68tYT-a5ysdb6yfUQuIGw8B_5JMUvlgj4blDy1BvKOwkI9rwsYwWgObmSo4Oc9JF4hxpwBuzing-XQ&usqp=CAc',
+      ],
+      description: 'Tai nghe không dây với khả năng chống ồn hiệu quả, pin dùng 8 tiếng.',
+    },
+    {
+      id: 11,
+      name: 'Sữa rửa mặt chiết xuất trà xanh',
+      price: 150000,
+      category: 'lamdep',
+      images: [
+        'https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcT_oAwb3Wwl_Wp0WiJKFPAeFSelIRYbDcOfSt9N93RRAMi_DQM_GI7vN0Frr_GI0VbigqTBLkmWG7OtjqmvY29MXOefXIoW6s7Rv93b8Y8kB_gjEAFWxSYLQKD_i2suCxBCDOlGfHE&usqp=CAc',
+      ],
+      description: 'Sữa rửa mặt giúp làm sạch sâu, kiểm soát dầu và ngừa mụn.',
+    },
+    {
+      id: 12,
+      name: 'Bình giữ nhiệt inox 500ml',
+      price: 300000,
+      category: 'giadung',
+      images: [
+        'data:image/webp;base64,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',
+      ],
+      description: 'Bình giữ nhiệt giữ nóng/lạnh lâu, thiết kế tiện lợi cho mang theo.',
+    },
+    {
+      id: 13,
+      name: 'Quần jean nữ cạp cao',
+      price: 350000,
+      category: 'thoitrang',
+      images: [
+        'https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcQNwpoPPwr0JC-_jDOAE0FNvS78UpiXQG_YJ2jW2ebhsdbzHJNmOUmr5o73hHn1cmGRYa2BvfzHrxolVtCi1D5sMAgfBW3m3Lc6nRkXcMXJi9Ua3sWS1Rbv&usqp=CAc',
+      ],
+      description: 'Quần jean thời trang, tôn dáng, dễ phối đồ.',
+    },
+    {
+      id: 14,
+      name: 'Đèn bàn LED cảm ứng',
+      price: 450000,
+      category: 'thietbi',
+      images: [
+        'data:image/webp;base64,UklGRmoRAABXRUJQVlA4IF4RAABQVQCdASq3ALcAPkUejUSioaETCX3QKAREsrZWrUr3CwfnykB5H8XAR9wvPLfq9M39y58v2A87t/zPRz9IDqwvREhVvI2aq/rvXX3A8AL2bv4sxvlc/b/NSm7/YLLjIF6xn+V/7vPf9Yejp/y/XM9n/kzE3GomQ/wXq8UhhewzOY/8POTuOGXX5BH2t5h9KbJhVmCIR0D/RfKTKxR9OwHn8d4ajBk+jIgha6P4/qCotFbtgniS+R3URBPRPNOAOvf5IuhWvrR8oUXmoYbN8mNxtVsx1eK0vCZfyY7IOo3+aqz7uwVhqUIYOKUsIXB3q9jOYrUCQ6/yjhSHpvtNV8Xas1E7hwoOCEvrAfJVNepK5fZbpPlnhoMzDmnt9WB+UH7c+x5N2bzyD7z/BPiVTluKk181oWtqJupD2Af9Qeh7zJP2IXUfKj3WSnj0rITJsJVT+wVav3ZqLRunatgDl76EK0h4gIBidkFXFLkT6wIc+dsXGpTUajePZzm0Q62JQezTJ5GrBSL1mWRqabxAw/j5D7NxH760iVvd9KzLq4SjRtnVY8YPL7Slr9AxWgK0hAw0n7f0qkxmAC15uqvMx7YpiGOVuhjIWpiYNxfYsoN19ubAT4AqDbvRAQ84lE8UE5oSzUyTONLO2y4FW+89xjBMvetYnVE1GFDDFVLwi5sTi+xrgmSFdOVY22M4Obple1O9b0POgBgRBAnmsb/RxQ1H3qU69LHzR1KTTWH4iX//0zv/x+njNGengHn7nJeldm/4GoErL8TEHxsJu2QxRxQUYoz0ieLgNR8HHDNz+CXkyxYxqRR/i8bwMwIAXJ5bPYnG3jKmcot7DBPPS1ISp16er2tTpRflHHjvGqGSCHAt1nj+fSUiRS227cxJGegWeGH7PevVmnYCmcEtqG+KKxkzsnoAAP5Mwb+8/TDP+XTaKXeMUQyiGQMf/+Pw/fb++3mf//h7/w3/bnrkVd41YSk1GLPcuSdW/3oAgyBmtFQNdxF5Rn92nWR69aAdBNZkvSC23EsttsqgyrYawuBXnvLuMJi2TgCGT6LARevjfxK5/yiymlfPiIjE6fPUX8hCet6mr9hg/Jnbomomj086SOudZxOi1ayYQ3Uz4PLSkrb4W+yc9+JKy7gO1scr7Ewvpy+WPmE0uP+eTcM9MPvhPEGPFqaoY0FsKvpzLftKZ4hFW8JONJ2Jiq5W/VkXxNMU7y6ssKydz88Os1n2Sr4Sm/qCqQF56rL/FVQQc2ix/Nf8bg/4PdxeX2/MPi51+bMTEdL93TGeDec8O/1l85E2q7165BsYWOEJ6X+e1vH0p8LVcE78LFVTX9aUj8akAFmISQBQ7Gav0sqSKTORdUKCTg7fJ9IrYXGK6rh6hI0bPFxER9sp+Yuhi80spo8QuZEd6I6uVPzzhGKD3sVhB6/nrDpE+wd274kCQTHQ9aMObCCWXEjYAOMPnpi0AkojopGQ5gQM9EPdX8Ofzll04ab2yuJZeD76hWAOBhwKksLQiP/X4pp/pF5JEGV9zevxq1EbapcGAU29r8B1ntb6Z6yc9/DDIHsHZfTevQExPXfNz03xTdf0B5Vd6OCaMyKgDEoCwugQroE8RTsGVgkFOv3VzRjCneS3rcpLy1swu5qZAfhbw5D8eXfkDI3QgQcyAqTW0issirkCn8lYSEZ9sK3fguYxVcHdvCZ1xYkG0QMOSrLWpoibAc4e8S1lHGX4+jqDbvm8cyQLijR+v17ilCRaYxh3qUvgy1+dyHEe9GYJBq9r8nZVar4XLRRD0whJNPJ3kFaUUybGaQXfz9kGaAmVfc1kDKED336bFdVWbt7RcKrwcqdQ8Q82eibcXVi7i8vxd9P52wUL8vfoyAabCQPZT13e6PQicLkYpt1jCHKwAQdllyv5XskS5nq2HAmPpQLwI4o1wHnHb2doBu9cNnyT5e0/JoTnKx+lL4nK9Och2j4vwk1TtkzWXSghiEu3wWvW5vS7j3SQ4LBjJjC7reEt3Ic0ycmOQDo2QKFEF+U83gtiHN/gS2Edv7i5bCcxgOTcJ+0N/OS2impuz1ZbPNgQJ1x/v9JaSRpJWBK8wM5RjbbGQMwjrZX3476bTdFtZeL0Y7wZZ04Zlfe8hVBVMs6gEipzxUwrhfdv9kqBCfuCeivKLJkc0nj9aPao2Up0B6ShotjSs8haVGq7MgiLi+MLL2R5LfxLRGSCQ5ziDqIGY46drAAAzPDvC96jLZm1LPYc5zy7zgexpJSaD+xEYzB79+nQq4/QvHZioHuERZDVBtaOEKH4XWedh5pNdvRm20GxHcsgU7MlUSXwuofdcc9all5EEyE0BpV+uI9MzRRCVKn7ut17lASJc5nFfooG/cT1t8Mm5t69BD6zpICrXA/+LlENGxJEElgZD8DEUMaTztaodT2752evp0sg+6ajB027EjpPKRhq3X0ha5Y+ddv9cnIisf95E9D/dNShO1aQZ/QxKiinzxjkiaY/6UqVf9snP/gnZeG1vvBASZU6RlBy9ybNCJYiXhkSCM9x+5ezOjZne1ky+WiqJ/j9ml+/Ad5wLM0xAKU8eWCXzjcj204Uw08glqIoLNYcxnrVq3jAMLG5RzKpGZZK+VIYIf3IFqZeSu4aeYdfnZGHOp6HwXH30MRx2KyxI8Y1xRA/uyv8tlve7YXGb4fNriBjCFDruOmg+GSdNFvMV6Qy+CdGJFtzSo4nFiqMA7+59YbUO8Q3AzcXgl/gMccTZYPQNM0klaeA3/OcxjWruuSQq3WCim7a98Zn9J2oAWvLzWpFd3urciE2O8skF7xA0kLe/KKKzbguhySlmYGMuYfEix4d5bSpdRTm0lB+rjO9JA1H+fJxWpoDVuB8NUuwtqOsdpxrTYAUdErxGSBuv4/87E8DNYFmqTZO+kBB1MHF8hZpsCIqXgPrzRZnDGvelgfX4Ovw9rneRVswLUXIxtmfllchxlsAsPZPmOwGsraJbtKg+pP+w57+HdeluFmIuxPKTZnaWaxY5Zlfvt8ZTFsF9SbKt3hrQf/X2OC6SZPtkgTMvaeH/kIb8A5e4s6RNR9YoFd7kRB706NcRJpChCyXKfMZMhrNyM0YXR40smX4N6fytqzWjjWKlMriJEjYJDlJu/njrVskLwX4dHA2W+s2OtUwxEdho3bvFrP+2l2xmaWqCLNQ+tn3+CrtGq/kZpUOr3VDp399r1NqHgQzeyPKTcvgD8ejUEqMXmwsK1qedvK0RLUZQVptHVJSqsEi+xi+3pgThmX3ab7lOj9EoJTZ5DBc9LOkhHbB4b1o3WvKEYiDdQYJ9lJRV4VnmaTkbodv9a5b1vZH31A4Z2zY9qd2Lkk2qpxMA40wxjyjRK5u2tsdu9ZAAX302WbsmHbuntUSU3y8+riDzpOcAjdptPgDdxoih92Mcr2IE51sEYlkPx/ICC9zHLtbW7aiSui3U5v9vnDCac5lqthhVkovERMnS/0LDsetZAntqp/WxJS5wIvW81a2kFj7+mLLPiEJspcGG/egHTw7kDrbl0sspWdBY4HDbldGDd5Hw2TFbwFlUsRgqz34EeYFVCB1o/M4cm+Hi6EBzeix8nI3v4crO6RjpHtdAZ4Chfa8M6rBggOW6aKLQZ07h+G7Py2L1PuK+3RqwCzSR96ZX5/CiMR7U4UXAu5sYG8r6RQzNOWjJVHy3XOJpSbTtGvLAYI0woltmxTUpKCM0/AYlI3AGxHbxA+UHQxB2ua8UUE+g19bsqcOBL5VIy9NBCC1d/S2HCBMiPRT2V/8FiKo7P/Bb5qN7oMt9zt0DnudDagSmk56311UyESQvL7sJacvOG8IwbX9y735w2VW4z49YNc6ipeDJyXf/wI4VtevYOP/XDrcYlqd06+725jZH62s/4DHXjmTLUvPsgPTWJ7autj2soBtOv5GqRmTM0XJbhn7g/V7g9m3W1YE2wcJYO7/BPJOLm0RFpsDPPvwIXLF/4BGjx7JedPGHcaK2ngWCeTd33YxvMqA4+0bg5Wdm+whBFBEtJxgY6z2H65PbtMZEejA4EcXbalG6TMUcUp0MX/di9/3ogau67LQxJS2PHJM2aeDeDwwHNhFE9D9RiaFyqg25YP9k0plh0qnI2HrsqYScwI77ijvdB8DY680SH4079oTsElsyHMUiVyYVjt3zkgNcGp+6Jf+JAORCm6wMDNTL6FZYQadZrUaw/OhBQzlNdqHijIuCsPTWfaq+vOfdbCUI5tH6rUODDUBYR/goszNJ7CaU4W/jjB3bHQGYogq8mCddDjy07ULxtu83Mnwlt7pgGN7bIZKZ++tRy8gjrQEHA297yTYUJGkyShAZDDSZLU6uMQJpntXio6NbsmYDb0nyFb5l3ndGlsrkmLD0qbd2C0XpcSqNRqqt/yuENSEifGp48ajquKRn4sg30a/rOruoiLXih7aUM0YFuxn7DxbhNNHNvhprBVKg56We1uUup91mEQyfYOLsCPQ4s0iGOdV/+fMZibNfK2C+rYK9cUXk5rGB4QAYWcxnQdpVwyPHzD/+pmL3OiUOT7WYSGS8ZVl9csG/ZaB4PGOQPG2V7CBWvkkVErquptuKdc3bDE4uWTPS/8IXcUWrUYXxFJGsOI8djmqsQAdHlnIygK2uzlp4fKBFXqxltAZsjIcZRNV8bIJPy2s9934Ap7tK/q+y/65suSZWHFcFzs5UUHQILBb/sOb0FuIJtZtuEAc037VNd3Kg//ObW7dPz/p4+dsLz5L2ZAyND8hEvSO1kqviKvFoBR3ew2zXB+ZC1jqP2N/h7ifS5lu6B8YUqoGVUC/sQqtqt0pUqVk9sCOQ1SNZQZD234mxBeZGbIpnoAzo2HnO/IeFsNbUDv66n51XPim5nsHf8LvpfsISv3E/Z+p+kekVwhjR4ojZ+uV3QNjhTn9GIiVk8r5W/QH6cpJunhqcn320d7IM5bVwobSNyASjQfc3MYH9FVe9FMRez65nbT+vNmviCQNNMZRZfMjuFGVCvOiXRnEy/bYzcWMN23divO2ScOa/9xC/Bv+IjPBHU51VdpVVjiwVwgNhvF2NZeW9WoK1wyZK+F2vGDci65nLaUWZo55tPgmOYvn8SwTfWcKwS8WR+J+0fylJKvQ5gp9SAK/Hlcr39ziRehjPLwl9Ccn4TY/vy2p9ZtQDi3NJnzQEQRCNkN6PYVHYL8zt9Cpm2r07ww/KJ+SuyuKmnIOKkaT1U5r6Sow7c7e+9WjdzP971mE9YPzSA6F0sfzEX9qPTnHeo3+iJjUOF+kEWc/3YcEGA+mdnQu5gDsxeTYy3mMoptYUnVmvB0tySK/sodDOzikftqEMC7+YrFV+WJ7rjt70s0NnpvdPDmNEXJHgTaTmO9BIyPwys7L6ilmq0DCv+BXSRCC6Ez+OKIEmp1mFC8qEArjkPY1/d4MGpBoSrn/NPy2dJeyDc4Yot+QDX1WjNWmo9GH9+CsU/J4+ilOeIUKs4zOp+oxlLXT46wACUc2aYHOKEG+tApRGBK+A7P3YdUu+jDdLO2PBQj/iVgkwAlmL7WE60DJTCqJQk0DG7oNfn5mzQFMcSIPGuSeDXklGY8z1wY2GMLzq8ptwtPOD905g/4otEpkKjxz32Q9xjv1zDEsh3ZrbUS+W51mDkPt3gyqgXEd0aF4SOCXhYoZuuiVEJFPOn0qmCWlYzK3+JDeSjcbQ2naJDtDcK1cagzl3SAM7/5hSHaY4OvCWRbx01Ohzg5Af5YnsPCIjXtpndTRBvMrtWGUtaHq4g/5I/YrJ4dxGTpbZfrvOi2u84VdXe0iQxKwa57ck7JoMFD5L+rWExJbbnVRjVpDLgYMk1CqncKu0EPIGA6lp2lwHbOc7Knvvnf7Bh7hj33H3aque2ZaFypVd2aMRNRz9vgmT9lU1moh5AZOCmp8fX2ut7mfokwtIHWVdbX5mKET99fwAAA=',
+      ],
+      description: 'Đèn bàn LED tiết kiệm điện, điều chỉnh độ sáng cảm ứng tiện lợi.',
+    },
+    {
+      id: 15,
+      name: 'Mặt nạ ngủ dưỡng ẩm sâu',
+      price: 220000,
+      category: 'lamdep',
+      images: [
+        'https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcQHzXmbmhxvDnNmq44HMXbeOT48ttW6FJGpIxs4HLl47MeTMQhqWpC_3YukJvnGf-6UoavF1SRHbdgrm7ze51XQqSs_apBRQP9KHifulPXlIYsLoQ423bok10oH53fuOso0fhOI4g&usqp=CAc',
+      ],
+      description: 'Mặt nạ ngủ giúp dưỡng ẩm và phục hồi da trong khi bạn nghỉ ngơi.',
+    },
+    {
+      id: 16,
+      name: 'Máy hút bụi cầm tay',
+      price: 1300000,
+      category: 'giadung',
+      images: [
+        'https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcQQgDcYWg9T8Ef6135IHYDL64x7zOASMBGDHRezGgoPs36LZP73HzvuRwHcZicaJFUgI30tlpkxxhqs9M-fgxg02ZBImfpe3rNic_3TQEdxE9eOgnGcwelOlu0XrwrKNoOQaAo3Lw&usqp=CAc',
+      ],
+      description: 'Máy hút bụi nhỏ gọn, tiện dụng, công suất mạnh mẽ.',
+    },
+    {
+      id: 17,
+      name: 'Áo khoác gió nam chống thấm',
+      price: 400000,
+      category: 'thoitrang',
+      images: [
+        'https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcR7CmsZR-HPNEjlvG-cIdoC2wf1NldtVS0FXCDD-PiRgYNq81L6trdZ3tsJWJz_ITcoq9JnrZWrZDYv0q6ftb4hA9e1lptUyP4pXx1X4r6DBGZRiY54NNoY&usqp=CAc',
+      ],
+      description: 'Áo khoác gió nhẹ, chống thấm nước, thích hợp cho mọi hoạt động ngoài trời.',
+    },
+    {
+      id: 18,
+      name: 'Loa Bluetooth di động',
+      price: 750000,
+      category: 'thietbi',
+      images: [
+        'data:image/webp;base64,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',
+      ],
+      description: 'Loa Bluetooth nhỏ gọn, âm thanh sống động, pin dùng lâu.',
+    },
+    {
+      id: 19,
+      name: 'Tinh chất dưỡng da chống lão hóa',
+      price: 480000,
+      category: 'lamdep',
+      images: [
+        'https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcQdTutnpcagA5sSHsOwZp_SlXOXKMD1KGOZ-8H6iR5FdaZqflfSTQ__qzaNSDB5Z6dlm8A-uff1EozYp31hxb44UjRhYtFDwqTaiGJv_r3iUG8WSw-KvOZTMhWLcYhgBQqv2QpkT1b3TA&usqp=CAc',
+      ],
+      description: 'Tinh chất giúp giảm nếp nhăn, tăng độ đàn hồi cho da.',
+    },
+    {
+      id: 20,
+      name: 'Nồi chiên không dầu 5L',
+      price: 2200000,
+      category: 'giadung',
+      images: [
+        'https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcSxYnBaJnHhhZRXrrK7VViQyu99oLPvXvkkTGb8kZS_hXlw_VvlsRUgG-drxmv8rkXBlmmRKzI792TuGnshEhaUtbSrAyKN9sr2eRRXP7GHGwBw2ZmfE6AoKXCUkeafejhhWx8tyqQ&usqp=CAc',
+      ],
+      description: 'Nồi chiên không dầu tiết kiệm thời gian và dầu mỡ, món ăn vẫn giòn ngon.',
+    },
+    {
+      id: 21,
+      name: 'Giày thể thao nam thoáng khí',
+      price: 700000,
+      category: 'thoitrang',
+      images: [
+        'https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcQISk2rPHYb027Gv5x9YfUb5NooeDjGiPyo3-JybkJVZcmaHVFLSYBWAB2IkyHhVD3_HSh6lzTcb4cmKysoubGy7qlaiT6MD9RKn0c73vQEPZIzYPHkLNjdkDW1M9DOt-wxE1iG9q8&usqp=CAc',
+      ],
+      description: 'Giày thể thao nhẹ, thoáng khí, phù hợp chạy bộ và tập luyện.',
+    },
+    {
+      id: 22,
+      name: 'Kem chống nắng vật lý cho da nhạy cảm',
+      price: 320000,
+      category: 'lamdep',
+      images: [
+        'https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcRVDDI3g0alrEQkSfee-KB7IGfYP1LMGSGKZJROBONYDzvSQVCYlsdZY-YCMZaukyYoUthYL_-wP4jaynLr4O0_uuZiOi8Z0-JF8BlByDmxoIKfLF-5ZMQMkg&usqp=CAc'
+      ],
+      description: 'Kem chống nắng vật lý giúp bảo vệ da khỏi tia UV, không gây kích ứng, thích hợp da nhạy cảm.',
+    },
+    {
+      id: 23,
+      name: 'Robot hút bụi tự động',
+      price: 5500000,
+      category: 'giadung',
+      images: [
+        'https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcRgKP_YS2i_X5PHZ0LgRNgQM4m_zKLdc9RFN43g94aTRf9cl_7QWkeHS5XtdeqNDheaSkIzABD_Bjxk-hyVHOdGB3I0LCLqApyzDVOfKg_JhHPtlLeex4P5LB4iFzfGAErUdWzXig&usqp=CAc'
+      ],
+      description: 'Robot hút bụi thông minh, tự động làm sạch nhà, tiết kiệm thời gian và công sức.',
+    },
+    {
+      id: 24,
+      name: 'Áo sơ mi nữ công sở',
+      price: 280000,
+      category: 'thoitrang',
+      images: [
+        'https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcTx1AT_o82pf5ZQnhLN8QO9kUdYQYZfLIxu0Nw00cf1Viinw9qsFD6Wv46O6mHR_k5O5y33MawmMNeRYMsk8veidcnfr_EKXW8lsOII_SmeQ3CeQdErrIaQPQBDxkghswjz-DkGVt-Y&usqp=CAc'
+      ],
+      description: 'Áo sơ mi nữ kiểu dáng thanh lịch, chất liệu thoáng mát, phù hợp môi trường công sở.',
+    },
+    {
+      id: 25,
+      name: 'Chuột không dây Bluetooth',
+      price: 350000,
+      category: 'thietbi',
+      images: [
+        'https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcTX4L6kliFDXItYfT1W6R6mzCwi-ZNSpzvThUMnGoSC68BbK6XAGvgEJ9-SjhmeWEQPlf1KiN9IwrJPAoX2LDkMw9qgYokX3pVwC8XlG6rfSJbuUTPLVSZ8Pk07HyxfSULIQuObuw&usqp=CAc'
+      ],
+      description: 'Chuột không dây Bluetooth nhỏ gọn, tiện dụng, tương thích đa thiết bị.',
+    }
+      // Add more products with multiple images similarly here...
+    ];
+
+    // UTIL FUNCTIONS
+
+    function formatVND(num) {
+      return num.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
+    }
+
+    function showToast(msg) {
+      toast.textContent = msg;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2500);
+    }
+
+    // MANAGE LOCAL STORAGE FOR CART, WISHLIST, USER
+    let cart = JSON.parse(localStorage.getItem('cart')) || {};
+    let wishlist = JSON.parse(localStorage.getItem('wishlist')) || {};
+    let user = JSON.parse(localStorage.getItem('user')) || null;
+
+    function saveCart() { localStorage.setItem('cart', JSON.stringify(cart)); }
+    function saveWishlist() { localStorage.setItem('wishlist', JSON.stringify(wishlist)); }
+    function saveUser() { localStorage.setItem('user', JSON.stringify(user)); }
+
+    // ELEMENTS
+    const productGrid = document.getElementById('productGrid');
+    const categoryList = document.getElementById('categoryList');
+    const searchInput = document.getElementById('searchInput');
+    const searchBtn = document.getElementById('searchBtn');
+    const cartCount = document.getElementById('cartCount');
+    const cartIcon = document.getElementById('cartIcon');
+    const cartSidebar = document.getElementById('cartSidebar');
+    const closeCartBtn = document.getElementById('closeCartBtn');
+    const cartItemsContainer = document.getElementById('cartItemsContainer');
+    const cartTotal = document.getElementById('cartTotal');
+    const checkoutBtn = document.getElementById('checkoutBtn');
+    const wishlistIcon = document.getElementById('wishlistIcon');
+    const wishlistSidebar = document.getElementById('wishlistSidebar');
+    const closeWishlistBtn = document.getElementById('closeWishlistBtn');
+    const wishlistItemsContainer = document.getElementById('wishlistItemsContainer');
+    const wishlistCount = document.getElementById('wishlistCount');
+    const productModal = document.getElementById('productModal');
+    const modalCloseBtn = document.getElementById('modalCloseBtn');
+    const modalImage = document.getElementById('modalImage');
+    const modalProductName = document.getElementById('modalProductName');
+    const modalPrice = document.getElementById('modalPrice');
+    const modalDescription = document.getElementById('modalDescription');
+    const modalAddCartBtn = document.getElementById('modalAddCartBtn');
+    const loginModal = document.getElementById('loginModal');
+    const loginForm = document.getElementById('loginForm');
+    const loginCloseBtn = document.getElementById('loginCloseBtn');
+    const usernameInput = document.getElementById('usernameInput');
+    const passwordInput = document.getElementById('passwordInput');
+    const profilePage = document.getElementById('profilePage');
+    const profileForm = document.getElementById('profileForm');
+    const profileUsername = document.getElementById('profileUsername');
+    const profileEmail = document.getElementById('profileEmail');
+    const profilePhone = document.getElementById('profilePhone');
+    const userIcon = document.getElementById('userIcon');
+
+    // INITIAL STATE
+    let currentCategory = 'all';
+    let currentSearchTerm = '';
+    let modalCurrentProductId = null;
+function getRandomOrigin() {
+  const places = ['Hà Nội', 'TP. Hồ Chí Minh', 'Đà Nẵng', 'Hải Phòng', 'Cần Thơ', 'Huế', 'Quảng Ninh', 'Vũng Tàu', 'Nha Trang', 'Thanh Hóa'];
+  return places[Math.floor(Math.random() * places.length)];
+}
+
+function getRandomSales() {
+  return Math.floor(Math.random() * (5000 - 500 + 1)) + 500;
+}
+    // RENDER PRODUCTS FUNCTION
+   function renderProducts() {
+  productGrid.innerHTML = '';
+  let filtered = products.filter(p => {
+    return (currentCategory === 'all' || p.category === currentCategory) &&
+           p.name.toLowerCase().includes(currentSearchTerm.toLowerCase());
+  });
+
+  if (filtered.length === 0) {
+    productGrid.innerHTML = '<p style="color:#999; text-align:center;">Không tìm thấy sản phẩm phù hợp.</p>';
+    return;
+  }
+
+  filtered.forEach(product => {
+    const card = document.createElement('div');
+    card.className = 'product-card';
+    card.setAttribute('tabindex', '0');
+    const origin = getRandomOrigin();
+    const sales = getRandomSales();
+    card.innerHTML = `
+      <img src="${product.images[0]}" alt="${product.name}" class="product-image" loading="lazy" />
+      <div class="product-name" title="${product.name}">${product.name}</div>
+      <div class="product-info" style="display: flex; justify-content: space-between; font-size: 0.9rem; color: #666; margin-bottom: 0.5rem;">
+        <span> ${origin}</span>
+        <span>${sales.toLocaleString('vi-VN')} đã bán</span>
+      </div>
+      <div class="product-price">${formatVND(product.price)}</div>
+      <div style="display: flex; gap: 0.4rem; margin-bottom: 0.5rem; flex-wrap: nowrap; align-items: center;">
+        <button class="add-cart-btn" data-id="${product.id}"
+          style="font-size: 0.85rem; padding: 0.4rem 0.5rem;">Thêm</button>
+        <button class="buy-now-btn" data-id="${product.id}"
+          style="background: #28a745; color: white; border: none; border-radius: 4px; padding: 0.4rem 0.5rem; font-weight: 600; font-size: 0.85rem;">Mua</button>
+        <span class="heart-icon" data-id="${product.id}" title="Yêu thích"
+          style="margin-left: auto; font-size: 1.3rem; color: #aaa; cursor: pointer;">&#10084;</span>
+      </div>
+    `;
+    productGrid.appendChild(card);
+  });
+
+  // Gắn sự kiện yêu thích
+  const wishlist = JSON.parse(localStorage.getItem('wishlist')) || {};
+  document.querySelectorAll('.heart-icon').forEach(icon => {
+    const id = icon.dataset.id;
+    if (wishlist[id]) icon.style.color = 'red';
+
+    icon.addEventListener('click', (event) => {
+      event.stopPropagation();
+
+      const product = products.find(p => p.id == id);
+      if (!product) return;
+
+      if (wishlist[id]) {
+        delete wishlist[id];
+        icon.style.color = '#aaa';
+      } else {
+        wishlist[id] = product;
+        icon.style.color = 'red';
+      }
+
+      localStorage.setItem('wishlist', JSON.stringify(wishlist));
+      updateWishlistCount();
+      if (typeof renderWishlistItems === 'function') renderWishlistItems();
+    });
+  });
+}
+
+    // CART FUNCTIONS
+    function updateCartCount() {
+      const count = Object.values(cart).reduce((acc, i) => acc + i.qty, 0);
+      if(count > 0){
+        cartCount.style.display = 'flex';
+        cartCount.textContent = count;
+      } else {
+        cartCount.style.display = 'none';
+      }
+    }
+
+    function renderCartItems() {
+      cartItemsContainer.innerHTML = '';
+      const keys = Object.keys(cart);
+      if(keys.length === 0) {
+        cartItemsContainer.innerHTML = '<p style="color:#999; font-style:italic;">Chưa có sản phẩm nào trong giỏ.</p>';
+        checkoutBtn.disabled = true;
+        cartTotal.textContent = 'Tổng: 0₫';
+        return;
+      }
+      let total = 0;
+      keys.forEach(pid => {
+        const item = cart[pid];
+        total += item.price * item.qty;
+        const el = document.createElement('div');
+        el.className = 'cart-item';
+        el.innerHTML = `
+          <img src="${item.images[0]}" alt="${item.name}">
+          <div class="cart-item-details">
+            <div class="cart-item-name" title="${item.name}">${item.name}</div>
+            <div class="cart-item-price">${formatVND(item.price)}</div>
+            <div class="cart-qty-controls">
+              <button class="qty-btn" data-id="${item.id}" data-action="dec" aria-label="Giảm số lượng">-</button>
+              <span class="qty-count" aria-live="polite">${item.qty}</span>
+              <button class="qty-btn" data-id="${item.id}" data-action="inc" aria-label="Tăng số lượng">+</button>
+            </div>
+          </div>
+          <button class="remove-item-btn" data-id="${item.id}" title="Xóa" aria-label="Xóa sản phẩm">&times;</button>
+        `;
+        cartItemsContainer.appendChild(el);
+      });
+      cartTotal.textContent = `Tổng: ${formatVND(total)}`;
+      checkoutBtn.disabled = false;
+    }
+
+    function openCart() {
+      cartSidebar.classList.add('open');
+      cartSidebar.setAttribute('aria-hidden', 'false');
+      profilePage.classList.remove('active');
+    }
+    function closeCart() {
+      cartSidebar.classList.remove('open');
+      cartSidebar.setAttribute('aria-hidden', 'true');
+    }
+
+      // WISHLIST FUNCTIONS
+      function updateWishlistCount() {
+        const count = Object.keys(wishlist).length;
+        if(count > 0){
+          wishlistCount.style.display = 'flex';
+          wishlistCount.textContent = count;
+        } else {
+          wishlistCount.style.display = 'none';
+        }
+      }
+      function renderWishlistItems() {
+        wishlistItemsContainer.innerHTML = '';
+        if(Object.keys(wishlist).length === 0) {
+          wishlistItemsContainer.innerHTML = '<p style="color:#999; font-style:italic;">Không có sản phẩm yêu thích.</p>';
+          return;
+        }
+        Object.values(wishlist).forEach(item => {
+          const el = document.createElement('div');
+          el.className = 'cart-item';
+          el.innerHTML = `
+            <img src="${item.images[0]}" alt="${item.name}">
+            <div class="cart-item-details">
+              <div class="cart-item-name" title="${item.name}">${item.name}</div>
+              <div class="cart-item-price">${formatVND(item.price)}</div>
+            </div>
+            <button class="remove-wishlist-btn" data-id="${item.id}" title="Xóa khỏi yêu thích" aria-label="Xóa sản phẩm">&times;</button>
+          `;
+          wishlistItemsContainer.appendChild(el);
+        });
+      }
+      function openWishlist() {
+        wishlistSidebar.classList.add('open');
+        wishlistSidebar.setAttribute('aria-hidden', 'false');
+        profilePage.classList.remove('active');
+      }
+      function closeWishlist() {
+        wishlistSidebar.classList.remove('open');
+        wishlistSidebar.setAttribute('aria-hidden', 'true');
+      }
+  function renderCart() {
+    const cart = JSON.parse(localStorage.getItem('cart')) || {};
+    const container = document.getElementById('cartItemsContainer');
+    const totalElement = document.getElementById('cartTotal');
+    let total = 0;
+    container.innerHTML = '';
+
+    Object.values(cart).forEach(item => {
+      total += item.price * item.qty;
+
+      const el = document.createElement('div');
+      el.className = 'cart-item';
+      el.innerHTML = `
+        <img src="${item.images[0]}" alt="${item.name}" />
+        <div class="cart-item-details">
+          <div class="cart-item-name">${item.name}</div>
+          <div class="cart-item-price">${item.price.toLocaleString('vi-VN')}₫</div>
+          <div class="cart-qty-controls">
+            <button class="qty-btn" onclick="changeQty(${item.id}, -1)">-</button>
+            <span class="qty-count">${item.qty}</span>
+            <button class="qty-btn" onclick="changeQty(${item.id}, 1)">+</button>
+          </div>
+        </div>
+        <button class="remove-item-btn" onclick="removeItem(${item.id})">&times;</button>
+      `;
+      container.appendChild(el);
+    });
+
+    totalElement.textContent = `Tổng: ${total.toLocaleString('vi-VN')}₫`;
+    document.getElementById('checkoutBtn').disabled = total === 0;
+  }
+  function changeQty(productId, delta) {
+    const cart = JSON.parse(localStorage.getItem('cart')) || {};
+    if (cart[productId]) {
+      cart[productId].qty += delta;
+      if (cart[productId].qty < 1) cart[productId].qty = 1;
+      localStorage.setItem('cart', JSON.stringify(cart));
+      renderCart();
+    }
+  }
+
+  function removeItem(productId) {
+    const cart = JSON.parse(localStorage.getItem('cart')) || {};
+    delete cart[productId];
+    localStorage.setItem('cart', JSON.stringify(cart));
+    renderCart();
+  }
+
+    // ADD TO CART
+    function addToCart(productId) {
+    const product = products.find(p => p.id == productId);
+    if (!product) return;
+
+    let cart = JSON.parse(localStorage.getItem('cart')) || {};
+    if (cart[product.id]) {
+      cart[product.id].qty += 1;
+    } else {
+      cart[product.id] = { ...product, qty: 1 };
+    }
+    localStorage.setItem('cart', JSON.stringify(cart));
+
+    renderCart();
+    document.getElementById('cartSidebar').classList.add('open');
+  }
+  document.getElementById('closeCartBtn').addEventListener('click', () => {
+    document.getElementById('cartSidebar').classList.remove('open');
+  });
+
+    // CHANGE QUANTITY CART
+    function changeCartQty(productId, action) {
+      if(cart[productId]) {
+        if(action == 'inc') {
+          cart[productId].qty++;
+        } else if(action == 'dec') {
+          cart[productId].qty--;
+          if(cart[productId].qty <= 0) {
+            removeFromCart(productId);
+            return;
+          }
+        }
+        saveCart();
+        updateCartCount();
+        renderCartItems();
+      }
+    }
+    // REMOVE FROM CART
+    function removeFromCart(productId) {
+      delete cart[productId];
+      saveCart();
+      updateCartCount();
+      renderCartItems();
+    }
+
+    // TOGGLE WISHLIST
+    function toggleWishlist(productId) {
+      if(!user) {
+        openLogin();
+        return;
+      }
+      if(wishlist[productId]) {
+        delete wishlist[productId];
+        showToast('Đã xóa khỏi yêu thích');
+      } else {
+        const p = products.find(pr => pr.id == productId);
+        if(p) wishlist[productId] = {...p};
+        showToast('Đã thêm vào yêu thích');
+      }
+      saveWishlist();
+      updateWishlistCount();
+      renderWishlistItems();
+    }
+
+    // PRODUCT MODAL
+  //   function openProductModal(productId) {
+  //     modalCurrentProductId = productId;
+  //     const p = products.find(pr => pr.id == productId);
+  //     if(!p) return;
+  //     modalImage.src = p.images[0];
+  //     modalImage.alt = p.name;
+  //     modalProductName.textContent = p.name;
+  //     modalPrice.textContent = formatVND(p.price);
+  //     modalDescription.textContent = p.description;
+  //     productModal.classList.add('active');
+  //   }
+  function openProductPage(productId) {
+    const product = products.find(p => p.id == productId);
+    if (!product) return;
+    localStorage.setItem('selectedProduct', JSON.stringify(product));
+    window.location.href = `product.html?id=${productId}`;
+  }
+
+    function closeProductModal() {
+      productModal.classList.remove('active');
+      modalCurrentProductId = null;
+    }
+
+    // LOGIN MODAL đăng nhập
+  function openLogin() {
+    loginModal.classList.add('active');
+    }
+    function closeLogin() {
+      loginModal.classList.remove('active');
+    }
+    function login(username, password) {
+      if(username === 'binhdepzai' && password === '123') {
+        user = { username: 'demo', email: 'demo@example.com', phone: '0123456789' };
+        saveUser();
+        closeLogin();
+        showProfile();
+        showToast('Đăng nhập thành công');
+      } else {
+        alert('Tên đăng nhập hoặc mật khẩu không đúng!');
+      }
+    }
+    function saveUser() {
+      localStorage.setItem('user', JSON.stringify(user));
+    }
+    function loadUser() {
+      const u = localStorage.getItem('user');
+      if(u) user = JSON.parse(u);
+    }
+    function logout() {
+      user = null;
+      cart = {};
+      wishlist = {};
+      localStorage.removeItem('user');
+      localStorage.removeItem('cart');
+      localStorage.removeItem('wishlist');
+      hideProfile();
+      updateCartCount();
+      updateWishlistCount();
+      renderCartItems();
+      renderWishlistItems();
+      showToast('Đã đăng xuất');
+    }
+    function showProfile() {
+      profilePage.classList.add('active');
+      cartSidebar.classList.remove('open');
+      wishlistSidebar.classList.remove('open');
+      main.style.display = 'none';
+      profileUsername.value = user.username;
+      profileEmail.value = user.email || '';
+      profilePhone.value = user.phone || '';
+      userIcon.title = 'Tài khoản';
+    }
+    function hideProfile() {
+      profilePage.classList.remove('active');
+      main.style.display = 'block';
+      userIcon.title = 'Đăng nhập';
+    }
+
+    // PAYMENT MODAL
+    const paymentModal = document.getElementById('paymentModal');
+    const paymentCancelBtn = document.getElementById('paymentCancelBtn');
+    const paymentForm = document.getElementById('paymentForm');
+
+    function openPayment() {
+      if (!user) {
+        openLogin();
+        return;
+      }
+      if(Object.keys(cart).length === 0){
+        alert('Giỏ hàng trống!');
+        return;
+      }
+      paymentModal.classList.add('active');
+    }
+
+    function closePayment() {
+      paymentForm.reset();
+      paymentModal.classList.remove('active');
+    }
+
+    function completePayment(e) {
+      e.preventDefault();
+      const method = paymentForm.elements['paymentMethod'].value;
+      alert(`Thanh toán thành công bằng ${method}`);
+      cart = {};
+      saveCart();
+      updateCartCount();
+      renderCartItems();
+      closePayment();
+      closeCart();
+      showToast('Cảm ơn bạn đã thanh toán!');
+    }
+  document.getElementById('checkoutBtn').addEventListener('click', () => {
+    location.href = 'buy.html';
+  });
+    // EVENT LISTENERS
+    searchBtn.addEventListener('click', () => {
+      currentSearchTerm = searchInput.value.trim();
+      renderProducts();
+    });
+    searchInput.addEventListener('keydown', e => {
+      if(e.key === 'Enter'){
+        e.preventDefault();
+        searchBtn.click();
+      }
+    });
+    categoryList.addEventListener('click', e => {
+      if(e.target.tagName === 'LI') {
+        currentCategory = e.target.dataset.category;
+        Array.from(categoryList.children).forEach(li => li.classList.remove('active'));
+        e.target.classList.add('active');
+        renderProducts();
+      }
+    });
+    productGrid.addEventListener('click', e => {
+    if(e.target.classList.contains('add-cart-btn')){
+      addToCart(e.target.dataset.id);
+    } else if(e.target.classList.contains('buy-now-btn')){
+      // Chuyển đến trang product.html giống như click vào sản phẩm
+      openProductPage(parseInt(e.target.dataset.id));
+    } else if(e.target.classList.contains('wishlist-btn')){
+      toggleWishlist(e.target.dataset.id);
+    } else {
+      const card = e.target.closest('.product-card');
+      if(card){
+        const id = card.querySelector('.add-cart-btn').dataset.id;
+        openProductPage(parseInt(id));
+      }
+    }
+  });
+
+    modalCloseBtn.addEventListener('click', closeProductModal);
+    productModal.addEventListener('click', e => {
+      if(e.target === productModal) closeProductModal();
+    });
+    modalAddCartBtn.addEventListener('click', () => {
+      if(modalCurrentProductId) {
+        addToCart(modalCurrentProductId);
+        closeProductModal();
+      }
+    });
+    cartIcon.addEventListener('click', openCart);
+    closeCartBtn.addEventListener('click', closeCart);
+    cartItemsContainer.addEventListener('click', e => {
+      if(e.target.classList.contains('qty-btn')) {
+        changeCartQty(e.target.dataset.id, e.target.dataset.action);
+      } else if(e.target.classList.contains('remove-item-btn')) {
+        removeFromCart(e.target.dataset.id);
+      }
+    });
+    wishlistIcon.addEventListener('click', openWishlist);
+    closeWishlistBtn.addEventListener('click', closeWishlist);
+    wishlistItemsContainer.addEventListener('click', e => {
+      if(e.target.classList.contains('remove-wishlist-btn')) {
+        toggleWishlist(e.target.dataset.id);
+        renderWishlistItems();
+      }
+    });
+    checkoutBtn.addEventListener('click', openPayment);
+    paymentCancelBtn.addEventListener('click', closePayment);
+    paymentForm.addEventListener('submit', completePayment);
+    userIcon.addEventListener('click', () => {
+      if(user) {
+        showProfile();
+      } else {
+        openLogin();
+      }
+    });
+    loginCloseBtn.addEventListener('click', closeLogin);
+    loginForm.addEventListener('submit', e => {
+      e.preventDefault();
+      login(usernameInput.value.trim(), passwordInput.value);
+    });
+    profileForm.addEventListener('submit', e => {
+      e.preventDefault();
+      user.email = profileEmail.value.trim();
+      user.phone = profilePhone.value.trim();
+      saveUser();
+      alert('Cập nhật thông tin thành công!');
+    });
+function updateWishlistCount() {
+  const wishlist = JSON.parse(localStorage.getItem('wishlist')) || {};
+  const countElem = document.getElementById('wishlistCount');
+  const count = Object.keys(wishlist).length;
+  if (countElem) {
+    countElem.textContent = count;
+    countElem.style.display = count > 0 ? 'flex' : 'none';
+  }
+}
+function loadUser() {
+    const u = localStorage.getItem('user');
+    if (u) {
+      user = JSON.parse(u);
+      showProfile();
+    } else {
+      // ✅ Nếu không có user => mở lại modal đăng nhập
+      openLogin();
+    }
+  }
+
+  window.onload = loadUser;
+  
+    // INITIALIZE
+    renderProducts();
+    updateCartCount();
+    renderCartItems();
+    // updateWishlistCount();
+    // renderWishlistItems();
+    if(user){
+      userIcon.title = 'Tài khoản';
+    }
+  renderCart();
+
+  </script>
+
+  </body>
+  </html>
+

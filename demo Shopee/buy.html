@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <title>Mua hàng</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #fff6f4;
+      margin: 0;
+      padding: 2rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .buy-container {
+      width: 70%;
+      background: #fff;
+      border-radius: 15px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+      padding: 2rem;
+      position: relative;
+    }
+
+    .cart-title {
+      font-size: 1.8rem;
+      color: #ee4d2d;
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .product-item {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      border-bottom: 1px solid #ddd;
+      padding: 1rem 0;
+    }
+
+    .product-info {
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+      flex: 1;
+    }
+
+    .product-info img {
+      width: 80px;
+      height: 80px;
+      border-radius: 10px;
+    }
+
+    .product-details {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .product-name {
+      font-size: 1.2rem;
+      font-weight: bold;
+    }
+
+    .product-price {
+      color: #28a745;
+      margin: 0.5rem 0;
+    }
+
+    .quantity-controls {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-top: 0.3rem;
+    }
+
+    .quantity-controls button {
+      padding: 0.3rem 0.6rem;
+      font-size: 1rem;
+      font-weight: bold;
+      background: #ee4d2d;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .quantity-controls span {
+      min-width: 20px;
+      text-align: center;
+    }
+
+    .checkbox-select {
+      margin-left: 1rem;
+      align-self: center;
+    }
+
+    .buy-btn {
+      display: block;
+      margin: 2rem auto 0;
+      background: #28a745;
+      color: white;
+      font-size: 1.2rem;
+      font-weight: bold;
+      padding: 0.8rem 2rem;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    a.back {
+      display: block;
+      margin-top: 1rem;
+      text-align: center;
+      text-decoration: none;
+      color: #ee4d2d;
+      font-weight: bold;
+    }
+
+    dialog {
+      border: none;
+      border-radius: 10px;
+      padding: 2rem;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+      text-align: center;
+      max-width: 500px;
+    }
+
+    dialog::backdrop {
+      background: rgba(0, 0, 0, 0.3);
+    }
+
+    #dialogContent {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      justify-content: center;
+      margin-top: 1rem;
+    }
+
+    .dialog-product {
+      flex: 0 0 calc(50% - 1rem);
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 0.8rem;
+      box-sizing: border-box;
+      text-align: left;
+    }
+
+    .dialog-product strong {
+      display: block;
+      margin-bottom: 0.4rem;
+      font-size: 1.1rem;
+      color: #ee4d2d;
+    }
+
+    .dialog-product p {
+      margin: 0.2rem 0;
+      font-size: 0.95rem;
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+  <div class="buy-container">
+    <div class="cart-title">Giỏ hàng của bạn</div>
+    <div id="cartItems"></div>
+    <button class="buy-btn" id="buyBtn">Mua</button>
+    <a href="demo.html" class="back">&larr; Quay lại trang chính</a>
+  </div>
+
+  <dialog id="buyDialog">
+    <h3>Bạn đã mua:</h3>
+    <div id="dialogContent"></div>
+    <button onclick="buyDialog.close()" style="margin-top:1rem;">Đóng</button>
+  </dialog>
+
+  <script>
+    const cart = JSON.parse(localStorage.getItem('cart')) || {};
+    const cartItemsContainer = document.getElementById('cartItems');
+    const buyBtn = document.getElementById('buyBtn');
+    const buyDialog = document.getElementById('buyDialog');
+    const dialogContent = document.getElementById('dialogContent');
+
+    function formatVND(num) {
+      return num.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
+    }
+
+    // Dùng Set để lưu sản phẩm được chọn nhiều checkbox
+    const selectedProducts = new Set();
+
+    function renderCart() {
+      cartItemsContainer.innerHTML = '';
+      Object.values(cart).forEach(product => {
+        const item = document.createElement('div');
+        item.className = 'product-item';
+        item.innerHTML = `
+          <div class="product-info">
+            <img src="${product.images[0]}" alt="${product.name}">
+            <div class="product-details">
+              <div class="product-name">${product.name}</div>
+              <div class="product-price">${formatVND(product.price)}</div>
+              <div class="quantity-controls">
+                <button onclick="changeQty('${product.id}', -1)">-</button>
+                <span id="qty-${product.id}">${product.qty}</span>
+                <button onclick="changeQty('${product.id}', 1)">+</button>
+              </div>
+            </div>
+          </div>
+          <div class="checkbox-select">
+            <input type="checkbox" id="chk-${product.id}" value="${product.id}">
+          </div>
+        `;
+        cartItemsContainer.appendChild(item);
+
+        // Bắt sự kiện checkbox
+        const checkbox = item.querySelector('input[type="checkbox"]');
+        checkbox.addEventListener('change', (e) => {
+          if(e.target.checked) {
+            selectedProducts.add(e.target.value);
+          } else {
+            selectedProducts.delete(e.target.value);
+          }
+        });
+      });
+    }
+
+    function changeQty(productId, change) {
+      if (cart[productId]) {
+        cart[productId].qty += change;
+        if (cart[productId].qty < 1) cart[productId].qty = 1;
+        document.getElementById(`qty-${productId}`).textContent = cart[productId].qty;
+        localStorage.setItem('cart', JSON.stringify(cart));
+      }
+    }
+
+   buyBtn.addEventListener('click', () => {
+  if (selectedProducts.size === 0) {
+    alert('Vui lòng chọn ít nhất 1 sản phẩm để mua.');
+    return;
+  }
+
+  let html = '';
+  selectedProducts.forEach(id => {
+    const p = cart[id];
+    if (p) {
+      html += `
+        <div class="dialog-product">
+          <strong>${p.name}</strong>
+          <p>Số lượng: ${p.qty}</p>
+          <p>Tổng tiền: ${formatVND(p.qty * p.price)}</p>
+        </div>
+      `;
+      addToPurchased(p); // ✅ Ghi lại vào danh sách đã mua
+    }
+  });
+
+  dialogContent.innerHTML = html;
+  buyDialog.showModal();
+});
+
+
+   function addToPurchased(product) {
+  let purchased = JSON.parse(localStorage.getItem('purchased') || '[]');
+  const exists = purchased.find(p => p.id === product.id);
+  if (!exists) {
+    purchased.push({
+      id: product.id,
+      name: product.name,
+      image: product.images[0],
+      rating: 0
+    });
+    localStorage.setItem('purchased', JSON.stringify(purchased));
+  }
+
+  let progress = JSON.parse(localStorage.getItem('orderProgress') || '[]');
+  progress.push({
+    id: product.id,
+    name: product.name,
+    image: product.images[0],
+    status: 'pending',
+    created: Date.now()
+  });
+  localStorage.setItem('orderProgress', JSON.stringify(progress));
+}
+    renderCart();
+  </script>
+</body>
+</html>

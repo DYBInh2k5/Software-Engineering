@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Trang cá nhân</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #fff6f4;
+      margin: 0;
+      padding: 0;
+    }
+
+    .header {
+      background: linear-gradient(to right, #ee4d2d, #f96e45);
+      color: white;
+      padding: 1rem 1rem 0.8rem;
+      position: relative;
+    }
+
+    .profile-box {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .profile-box img {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      border: 2px solid white;
+    }
+
+    .user-info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .user-info .name {
+      font-size: 1rem;
+      font-weight: bold;
+    }
+
+    .user-info .level {
+      background: #ffffff40;
+      border-radius: 10px;
+      padding: 2px 6px;
+      font-size: 0.75rem;
+      display: inline-block;
+      margin-top: 2px;
+      width: fit-content;
+    }
+
+    .icon-area {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      display: flex;
+      gap: 1rem;
+      font-size: 1.2rem;
+      justify-content: center;
+        align-items: center;
+    }
+
+    .icon-area div {
+      cursor: pointer;
+    }
+
+    .section {
+      background: white;
+      margin: 0.6rem 1rem;
+      padding: 1rem;
+      border-radius: 10px;
+    }
+
+    .section-title {
+      font-weight: bold;
+      margin-bottom: 0.8rem;
+      font-size: 1rem;
+      color: #333;
+    }
+
+    .row-icons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.2rem;
+    }
+
+    .item {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-size: 0.9rem;
+      color: #333;
+      min-width: 48%;
+    }
+
+    .item span {
+      font-size: 1.2rem;
+    }
+
+    dialog {
+      border: none;
+      border-radius: 10px;
+      padding: 2rem;
+      box-shadow: 0 0 10px rgba(0,0,0,0.3);
+      text-align: center;
+    }
+
+    dialog::backdrop {
+      background: rgba(0,0,0,0.4);
+    }
+
+    .logout-btn {
+      margin-top: 1rem;
+      background: #ee4d2d;
+      color: white;
+      padding: 0.6rem 1.2rem;
+      border: none;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="icon-area">
+      <div onclick="openLogout()">⚙</div>
+      <div onclick="window.location.href='buy.html'">🛒</div>
+    </div>
+    <div class="profile-box">
+         <button onclick="window.location.href='demo.html'">←</button>
+      <img src="https://i.pravatar.cc/100?u=user" alt="avatar">
+      <div class="user-info">
+        <div class="name">binhdepzai</div>
+        <div class="level">diamond</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ĐƠN MUA -->
+  <div class="section">
+    <div class="section-title">Đơn mua</div>
+    <div class="row-icons">
+    <div class="item" onclick="showPendingDialog()">
+      <span>📄</span>Chờ xác nhận <span id="pendingBadge" style="color:red;font-weight:bold;"></span>
+    </div>
+    <div class="item" onclick="showShippingDialog()">
+      <span>📦</span>Chờ lấy hàng <span id="shippingBadge" style="color:orange;font-weight:bold;"></span>
+    </div>
+    <div class="item" onclick="showDeliveredDialog()">
+      <span>🚚</span>Chờ giao hàng <span id="deliveringBadge" style="color:red;font-weight:bold;"></span>
+    </div>
+    <div class="item" onclick="openReview()">
+      <span>⭐</span>Đánh giá
+    </div>
+    </div>
+  </div>
+
+  <!-- TIỆN ÍCH -->
+  <div class="section">
+    <div class="section-title">Tiện ích của tôi</div>
+    <div class="row-icons">
+      <div class="item"><span>💰</span>ShopeePay</div>
+      <div class="item"><span>🕒</span>SPayLater</div>
+      <div class="item"><span>🎁</span>Shopee Xu</div>
+      <div class="item"><span>🎫</span>Kho Voucher</div>
+    </div>
+  </div>
+
+  <!-- DỊCH VỤ TÀI CHÍNH -->
+  <div class="section">
+    <div class="section-title">Dịch vụ tài chính</div>
+    <div class="row-icons">
+      <div class="item"><span>🛡</span>Bảo hiểm</div>
+      <div class="item"><span>📲</span>Tải ShopeePay</div>
+    </div>
+  </div>
+
+  <!-- TIỆN ÍCH KHÁC -->
+  <div class="section">
+    <div class="section-title">Tiện ích khác</div>
+    <div class="row-icons">
+      <div class="item"><span>👑</span>Khách hàng thân thiết</div>
+      <div class="item" onclick="openReorder()"><span>🔁</span>Mua lại</div>
+    </div>
+  </div>
+
+  <!-- DIALOG -->
+  <dialog id="logoutDialog">
+    <h3>Bạn muốn đăng xuất?</h3>
+    <button class="logout-btn" onclick="logout()">Đăng xuất</button>
+  </dialog>
+<dialog id="reorderDialog">
+  <h3>Sản phẩm đã mua</h3>
+  <div id="reorderList" style="margin-top:1rem;"></div>
+  <button onclick="reorderDialog.close()" style="margin-top:1rem;">Đóng</button>
+</dialog>
+<dialog id="reviewDialog">
+  <h3>Đánh giá sản phẩm</h3>
+  <div id="reviewContent" style="margin-top:1rem;"></div>
+  <button onclick="reviewDialog.close()" style="margin-top:1rem;">Đóng</button>
+</dialog>
+<dialog id="pendingDialog">
+  <h3>Chờ xác nhận</h3>
+  <div id="pendingList" style="margin-top:1rem;"></div>
+  <button onclick="pendingDialog.close()" style="margin-top:1rem;">Đóng</button>
+</dialog>
+
+<dialog id="shippingDialog">
+  <h3>Chờ lấy hàng</h3>
+  <div id="shippingList" style="margin-top:1rem;"></div>
+  <button onclick="shippingDialog.close()" style="margin-top:1rem;">Đóng</button>
+</dialog>
+
+<dialog id="deliveredDialog">
+  <h3>Đang giao hàng</h3>
+  <div id="deliveredList" style="margin-top:1rem;"></div>
+  <button onclick="deliveredDialog.close()" style="margin-top:1rem;">Đóng</button>
+</dialog>
+
+
+  <script>
+    function openLogout() {
+      document.getElementById('logoutDialog').showModal();
+    }
+
+    function logout() {
+  localStorage.removeItem('user');  // Chỉ xóa thông tin đăng nhập
+  window.location.href = 'demo.html';
+}
+function openReorder() {
+  const data = JSON.parse(localStorage.getItem('purchased') || '[]');
+const container = document.getElementById('reorderList');
+  container.innerHTML = '';
+
+  if (data.length === 0) {
+    container.innerHTML = '<p>Chưa có sản phẩm nào đã mua.</p>';
+  } else {
+    data.forEach(p => {
+      container.innerHTML += `
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;border-bottom:1px solid #ddd;padding-bottom:0.5rem;">
+          <div style="display:flex;align-items:center;gap:1rem;">
+            <img src="${p.image}" width="60" style="border-radius:8px;">
+            <div>
+              <div style="font-weight:bold;">${p.name}</div>
+              <div style="color:#f5b50a;">${'★'.repeat(p.rating || 0)}${'☆'.repeat(5 - (p.rating || 0))}</div>
+            </div>
+          </div>
+          <button onclick="buyAgain(${p.id})" style="background:#ee4d2d;color:white;border:none;padding:0.4rem 0.8rem;border-radius:6px;">Mua lại</button>
+        </div>
+      `;
+    });
+  }
+
+  document.getElementById('reorderDialog').showModal();
+}
+
+function buyAgain(id) {
+  const products = JSON.parse(localStorage.getItem('purchased') || '[]');
+  const p = products.find(pr => pr.id === id);
+  if (!p) return;
+
+  let cart = JSON.parse(localStorage.getItem('cart') || '{}');
+  if (cart[id]) {
+    cart[id].qty += 1;
+  } else {
+    cart[id] = {
+      id: p.id,
+      name: p.name,
+      price: 100000,
+      qty: 1,
+      images: [p.image]
+    };
+  }
+
+  localStorage.setItem('cart', JSON.stringify(cart));
+  alert('Đã thêm vào giỏ hàng!');
+}
+function openReview() {
+  const data = JSON.parse(localStorage.getItem('purchased') || '[]');
+  const container = document.getElementById('reviewContent');
+  container.innerHTML = '';
+
+  if (data.length === 0) {
+    container.innerHTML = '<p>Không có sản phẩm để đánh giá.</p>';
+  } else {
+    data.forEach(p => {
+      const starsHTML = Array.from({ length: 5 }).map((_, i) => {
+        const active = i < (p.rating || 0) ? 'color:#f5b50a' : 'color:#ccc';
+        const clickable = p.rating ? '' : `onclick="rateProduct(${p.id}, ${i + 1})"`;
+        return `<span style="font-size:1.5rem;cursor:pointer;${active}" ${clickable}>★</span>`;
+      }).join('');
+
+      container.innerHTML += `
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;border-bottom:1px solid #ddd;padding-bottom:0.5rem;">
+          <div style="display:flex;align-items:center;gap:1rem;">
+            <img src="${p.image}" width="60" style="border-radius:8px;">
+            <div>
+              <div style="font-weight:bold;">${p.name}</div>
+              <div>${starsHTML}</div>
+            </div>
+          </div>
+        </div>
+      `;
+    });
+  }
+
+  document.getElementById('reviewDialog').showModal();
+}
+
+function rateProduct(id, rating) {
+  const purchased = JSON.parse(localStorage.getItem('purchased') || '[]');
+  const item = purchased.find(p => p.id === id);
+  if (item && !item.rating) {
+    item.rating = rating;
+    localStorage.setItem('purchased', JSON.stringify(purchased));
+    alert(`Bạn đã đánh giá ${rating} sao cho sản phẩm.`);
+    openReview(); // cập nhật lại giao diện
+  }
+}
+
+function updateOrderBadges() {
+  const progress = JSON.parse(localStorage.getItem('orderProgress') || '[]');
+  let pending = 0, shipping = 0, delivering = 0;
+  const now = Date.now();
+
+  progress.forEach(p => {
+    const elapsed = now - p.created;
+    if (elapsed < 1000) return;
+    else if (elapsed < 15000) {
+      p.status = 'pending'; // giữ là pending cho chữ đỏ
+      pending++;
+    } else if (elapsed < 20000) {
+      p.status = 'confirmed';
+      pending++;
+    } else if (elapsed < 25000) {
+      p.status = 'pickup';
+      shipping++;
+    } else if (elapsed < 30000) {
+      p.status = 'shipping';
+      delivering++;
+    } else {
+      p.status = 'delivered';
+    }
+  });
+
+  localStorage.setItem('orderProgress', JSON.stringify(progress));
+  document.getElementById('pendingBadge').textContent = pending ? pending : '';
+  document.getElementById('shippingBadge').textContent = shipping ? shipping : '';
+  document.getElementById('deliveringBadge').textContent = delivering ? delivering : '';
+}
+
+function showPendingDialog() {
+  const list = document.getElementById('pendingList');
+  const data = JSON.parse(localStorage.getItem('orderProgress') || '[]');
+  list.innerHTML = '';
+  data.forEach(p => {
+    if (p.status === 'confirmed') {
+      list.innerHTML += `<div style='border:1px solid #ccc;padding:10px;margin-bottom:8px;border-radius:6px;'>
+        <strong>${p.name}</strong><br>
+        <span style='color:green'>Đơn hàng đã được xác nhận</span>
+      </div>`;
+    } else if (p.status === 'pending') {
+      list.innerHTML += `<div style='border:1px solid #ccc;padding:10px;margin-bottom:8px;border-radius:6px;'>
+        <strong>${p.name}</strong><br>
+        <span style='color:red'>Đang chờ xác nhận</span>
+      </div>`;
+    }
+  });
+  pendingDialog.showModal();
+}
+
+function showShippingDialog() {
+  const list = document.getElementById('shippingList');
+  const data = JSON.parse(localStorage.getItem('orderProgress') || '[]');
+  list.innerHTML = '';
+  data.forEach(p => {
+    if (p.status === 'pickup') {
+      list.innerHTML += `<div style='border:1px solid #ccc;padding:10px;margin-bottom:8px;border-radius:6px;'>
+        <strong>${p.name}</strong><br>
+        <span style='color:red'>Đang chờ lấy hàng</span>
+      </div>`;
+    } else if (p.status === 'confirmed') {
+      list.innerHTML += `<div style='border:1px solid #ccc;padding:10px;margin-bottom:8px;border-radius:6px;'>
+        <strong>${p.name}</strong><br>
+        <span style='color:green'>Đã lấy được hàng</span>
+      </div>`;
+    }
+  });
+  shippingDialog.showModal();
+}
+
+function showDeliveredDialog() {
+  const list = document.getElementById('deliveredList');
+  const data = JSON.parse(localStorage.getItem('orderProgress') || '[]');
+  list.innerHTML = '';
+  data.forEach(p => {
+    if (p.status === 'shipping') {
+      list.innerHTML += `<div style='border:1px solid #ccc;padding:10px;margin-bottom:8px;border-radius:6px;'>
+        <strong>${p.name}</strong><br>
+        <span style='color:red'>Đang giao hàng</span>
+      </div>`;
+    } else if (p.status === 'delivered') {
+      list.innerHTML += `<div style='border:1px solid #ccc;padding:10px;margin-bottom:8px;border-radius:6px;'>
+        <strong>${p.name}</strong><br>
+        <span style='color:green'>Hàng đã đến tay người dùng</span>
+      </div>`;
+    }
+  });
+  deliveredDialog.showModal();
+}
+
+updateOrderBadges();
+setInterval(updateOrderBadges, 5000);
+  </script>
+
+</body>
+</html>

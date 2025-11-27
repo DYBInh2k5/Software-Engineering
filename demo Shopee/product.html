@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <title>Chi tiết sản phẩm</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 2rem;
+      background: #fff6f4;
+      color: #333;
+    }
+    .container {
+      max-width: 800px;
+      margin: auto;
+      background: #fff;
+      border-radius: 10px;
+      padding: 2rem;
+      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    }
+    img {
+      max-width: 100%;
+      border-radius: 6px;
+      margin-bottom: 1rem;
+    }
+    h1 {
+      font-size: 1.8rem;
+      color: #ee4d2d;
+    }
+    .price {
+      font-size: 1.5rem;
+      font-weight: bold;
+      margin: 1rem 0;
+    }
+    .description {
+      line-height: 1.6;
+      white-space: pre-line;
+    }
+    a.back {
+      display: inline-block;
+      margin-top: 1.5rem;
+      text-decoration: none;
+      color: #ee4d2d;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <img id="productImage" src="" alt="Hình sản phẩm" />
+    <h1 id="productName">Tên sản phẩm</h1>
+    <div class="price" id="productPrice">Giá</div>
+    <p class="description" id="productDescription">Mô tả</p>
+    <a href="demo.html" class="back">&larr; Quay lại trang chính</a>
+  </div>
+
+  <script>
+    function formatVND(num) {
+      return num.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
+    }
+
+    const product = JSON.parse(localStorage.getItem('selectedProduct'));
+
+    if (product) {
+      document.getElementById('productImage').src = product.images[0];
+      document.getElementById('productImage').alt = product.name;
+      document.getElementById('productName').textContent = product.name;
+      document.getElementById('productPrice').textContent = formatVND(product.price);
+      document.getElementById('productDescription').textContent = product.description;
+    } else {
+      document.querySelector('.container').innerHTML = '<p>Không tìm thấy sản phẩm.</p>';
+    }
+  </script>
+</body>
+</html>

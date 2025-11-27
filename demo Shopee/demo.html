@@ -1,0 +1,1157 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Shopee</title>
+<style>
+  /* Reset and base */
+  * {
+    margin: 0; padding: 0; box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+  body {
+    background-color: #fff;
+    color: #333;
+  }
+  a {text-decoration:none; color:inherit;}
+  ul {list-style:none;}
+  button, input, select, textarea {
+    font-family: inherit;
+    font-size: 1rem;
+  }
+  button {cursor:pointer;}
+
+  /* Header */
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #ee4d2d;
+    padding: 0.6rem 1rem;
+    position: sticky;
+    top: 0;
+    z-index: 500;
+    box-shadow: 0 2px 8px rgb(0 0 0 / 0.1);
+  }
+  .logo {
+    color: white;
+    font-size: 1.8rem;
+    font-weight: 800;
+    user-select: none;
+  }
+  .search-bar {
+    flex: 1;
+    max-width: 500px;
+    margin: 0 1rem;
+    position: relative;
+  }
+  .search-bar input {
+    width: 100%;
+    padding: 0.6rem 2.5rem 0.6rem 1rem;
+    border: none;
+    border-radius: 4px;
+    font-size: 1rem;
+  }
+  .search-bar button {
+    position: absolute;
+    right: 4px;
+    top: 50%;
+    transform: translateY(-50%);
+    border: none;
+    background: transparent;
+    color: #999;
+    font-size: 1.2rem;
+  }
+  .header-icons {
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+    position: relative;
+  }
+  .cart-icon, .user-icon, .wishlist-icon {
+    position: relative;
+  }
+  .cart-count, .wishlist-count {
+    position: absolute;
+    top: -8px;
+    right: -10px;
+    background: #f44336;
+    border-radius: 50%;
+    color: white;
+    font-size: 0.75rem;
+    width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    user-select: none;
+  }
+
+  /* Categories */
+  nav.categories {
+    background-color: #fff6f4;
+    padding: 0.5rem 0;
+    box-shadow: 0 2px 4px rgb(0 0 0 / 0.05);
+    display: flex;
+    justify-content: center;
+  }
+  nav.categories ul {
+    display: flex;
+    gap: 1.3rem;
+    flex-wrap: wrap;
+  }
+  nav.categories li {
+    padding: 0.25rem 0.75rem;
+    background-color: #ff5722;
+    color: white;
+    font-weight: 600;
+    border-radius: 20px;
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 0.3s ease;
+  }
+  nav.categories li.active,
+  nav.categories li:hover {
+    background-color: #ee4d2d;
+  }
+
+  /* Main */
+  main {
+    max-width: 1200px;
+    margin: 1rem auto;
+    padding: 0 1rem;
+    min-height: 80vh;
+  }
+
+  .product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill,minmax(220px,1fr));
+    gap: 1rem;
+  }
+  .product-card {
+    border: 1px solid #eee;
+    border-radius: 6px;
+    padding: 0.6rem;
+    background: white;
+    display: flex;
+    flex-direction: column;
+    transition: box-shadow 0.3s ease;
+    cursor: pointer;
+  }
+  .product-card:hover {
+    box-shadow: 0 6px 10px rgba(0,0,0,0.1);
+  }
+  .product-image {
+    width: 100%;
+    height: 180px;
+    object-fit: contain;
+    border-radius: 4px;
+    margin-bottom: 0.6rem;
+  }
+  .product-name {
+    font-weight: 600;
+    font-size: 1rem;
+    height: 45px;
+    overflow: hidden;
+    margin-bottom: 0.3rem;
+  }
+  .product-price {
+    color: #ee4d2d;
+    font-weight: 700;
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+  }
+  .add-cart-btn {
+    background: #ee4d2d;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 0.5rem;
+    font-weight: 700;
+    transition: background-color 0.3s ease;
+  }
+  .add-cart-btn:hover {
+    background-color: #ca3b20;
+  }
+
+  /* Product modal */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 1050;
+  }
+  .modal-overlay.active {
+    display: flex;
+  }
+  .modal-content {
+    background: white;
+    max-width: 700px;
+    width: 90vw;
+    max-height: 90vh;
+    border-radius: 8px;
+    padding: 1rem 1.5rem;
+    overflow-y: auto;
+    position: relative;
+  }
+  .modal-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    font-size: 2rem;
+    font-weight: 700;
+    cursor: pointer;
+    color: #999;
+  }
+  .modal-close:hover {
+    color: #ee4d2d;
+  }
+  .modal-images {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+  .modal-images img {
+    max-height: 260px;
+    object-fit: contain;
+    border-radius: 4px;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: border-color 0.3s ease;
+  }
+  .modal-images img.active {
+    border-color: #ee4d2d;
+  }
+  .modal-main-image {
+    width: 100%;
+    height: 300px;
+    object-fit: contain;
+    margin-bottom: 1rem;
+    border-radius: 6px;
+  }
+  .modal-name {
+    font-weight: 700;
+    font-size: 1.5rem;
+    margin-bottom: 0.8rem;
+  }
+  .modal-price {
+    font-weight: 700;
+    font-size: 1.3rem;
+    color: #ee4d2d;
+    margin-bottom: 1rem;
+  }
+  .modal-description {
+    margin-bottom: 2rem;
+    line-height: 1.5;
+    white-space: pre-line;
+  }
+  .modal-add-cart-btn {
+    display: block;
+    background: #ee4d2d;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 0.75rem;
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    width: 100%;
+    transition: background-color 0.3s ease;
+  }
+  .modal-add-cart-btn:hover {
+    background-color: #ca3b20;
+  }
+
+  /* Cart sidebar */
+  .cart-sidebar {
+    position: fixed;
+    top: 0;
+    right: -400px;
+    width: 360px;
+    height: 100vh;
+    background-color: white;
+    box-shadow: -3px 0 15px rgba(0,0,0,0.3);
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    transition: right 0.3s ease;
+    z-index: 1100;
+  }
+  .cart-sidebar.open {
+    right: 0;
+  }
+  .cart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+  .cart-header h2 {
+    font-weight: 700;
+    color: #ee4d2d;
+  }
+  .close-cart {
+    font-size: 1.7rem;
+    cursor: pointer;
+    color: #555;
+  }
+  .cart-items {
+    flex: 1;
+    overflow-y: auto;
+    margin-bottom: 1rem;
+  }
+  .cart-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 0.5rem;
+  }
+  .cart-item img {
+    width: 60px;
+    height: 60px;
+    object-fit: contain;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+  }
+  .cart-item-details {
+    flex: 1;
+  }
+  .cart-item-name {
+    font-weight: 600;
+    font-size: 0.9rem;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    margin-bottom: 0.3rem;
+  }
+  .cart-item-price {
+    color: #ee4d2d;
+    font-weight: 700;
+    font-size: 0.9rem;
+    margin-bottom: 0.3rem;
+  }
+  .cart-qty-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+  }
+  .qty-btn {
+    background: #eee;
+    border: none;
+    padding: 0 0.6rem;
+    font-size: 1.2rem;
+    cursor: pointer;
+    border-radius: 3px;
+  }
+  .qty-count {
+    font-weight: 700;
+    min-width: 24px;
+    text-align: center;
+  }
+  .remove-item-btn {
+    background: transparent;
+    border: none;
+    color: #f44336;
+    font-weight: 700;
+    font-size: 1.1rem;
+    cursor: pointer;
+  }
+  .cart-footer {
+    border-top: 1px solid #eee;
+    padding-top: 1rem;
+  }
+  .cart-total {
+    font-weight: 700;
+    font-size: 1.3rem;
+    margin-bottom: 1rem;
+  }
+  .checkout-btn {
+    background: #ee4d2d;
+    color: white;
+    border: none;
+    font-weight: 700;
+    padding: 0.75rem;
+    width: 100%;
+    cursor: pointer;
+    border-radius: 5px;
+    font-size: 1.1rem;
+    transition: background-color 0.3s ease;
+  }
+  .checkout-btn:hover:not(:disabled) {
+    background: #ca3b20;
+  }
+  .checkout-btn:disabled {
+    background: #ffa290;
+    cursor: not-allowed;
+  }
+
+  /* Login modal */
+  .login-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 1200;
+  }
+  .login-overlay.active {
+    display: flex;
+  }
+  .login-box {
+    background: white;
+    padding: 2rem;
+    border-radius: 8px;
+    max-width: 400px;
+    width: 90vw;
+    box-shadow: 0 0 20px rgba(0,0,0,0.3);
+  }
+  .login-box h2 {
+    margin-bottom: 1rem;
+    color: #ee4d2d;
+  }
+  .login-box label {
+    display: block;
+    font-weight: 700;
+    margin-bottom: 0.3rem;
+  }
+  .login-box input {
+    width: 100%;
+    margin-bottom: 1rem;
+    padding: 0.5rem;
+    font-size: 1rem;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+  }
+  .login-box button {
+    width: 100%;
+    padding: 0.7rem;
+    background: #ee4d2d;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-weight: 700;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  .login-box button:hover {
+    background: #ca3b20;
+  }
+  .login-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    font-weight: 700;
+    font-size: 1.3rem;
+    cursor: pointer;
+  }
+
+  /* Profile page */
+  #profilePage {
+    max-width: 900px;
+    margin: 2rem auto;
+    background: #fff6f4;
+    border-radius: 10px;
+    padding: 2rem;
+    box-shadow: 0 0 20px rgb(0 0 0 / 0.1);
+    display: none;
+  }
+  #profilePage.active {
+    display: block;
+  }
+  #profilePage h2 {
+    color: #ee4d2d;
+    margin-bottom: 1.5rem;
+  }
+  #profilePage label {
+    display: block;
+    margin-bottom: 0.3rem;
+    font-weight: 700;
+  }
+  #profilePage input {
+    width: 100%;
+    padding: 0.5rem;
+    margin-bottom: 1rem;
+    font-size: 1rem;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+  }
+  #profilePage button {
+    background: #ee4d2d;
+    color: white;
+    padding: 0.7rem 1rem;
+    font-weight: 700;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1.1rem;
+    transition: background-color 0.3s ease;
+  }
+  #profilePage button:hover {
+    background: #ca3b20;
+  }
+
+  /* Responsive */
+  @media(max-width: 768px) {
+    .product-grid {
+      grid-template-columns: repeat(auto-fill,minmax(150px,1fr));
+    }
+    nav.categories ul {
+      gap: 0.6rem;
+    }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">shopee<span style="color:#fff200;">.</span>vn</div>
+  <div class="search-bar" role="search">
+    <input id="searchInput" type="search" placeholder="Tìm kiếm sản phẩm hoặc thương hiệu" aria-label="Tìm kiếm sản phẩm" />
+    <button id="searchBtn" aria-label="Thực hiện tìm kiếm">&#128269;</button>
+  </div>
+  <div class="header-icons" role="group" aria-label="Chức năng">
+    <div class="wishlist-icon" id="wishlistIcon" title="Yêu thích" tabindex="0" role="button" aria-label="Yêu thích">&#10084;<span class="wishlist-count" id="wishlistCount" style="display:none;">0</span></div>
+    <div class="cart-icon" id="cartIcon" title="Giỏ hàng" tabindex="0" role="button" aria-label="Giỏ hàng">&#128722;<span class="cart-count" id="cartCount" style="display:none;">0</span></div>
+    <div class="user-icon" id="userIcon" title="Đăng nhập / Tài khoản" tabindex="0" role="button" aria-label="Đăng nhập / Tài khoản">&#128100;</div>
+  </div>
+</header>
+
+<nav class="categories" aria-label="Danh mục sản phẩm">
+  <ul id="categoryList">
+    <li class="active" data-category="all" tabindex="0" role="button" aria-pressed="true">Tất cả</li>
+    <li data-category="thietbi" tabindex="0" role="button" aria-pressed="false">Thiết bị điện tử</li>
+    <li data-category="thoitrang" tabindex="0" role="button" aria-pressed="false">Thời trang</li>
+    <li data-category="lamdep" tabindex="0" role="button" aria-pressed="false">Làm đẹp</li>
+    <li data-category="giadung" tabindex="0" role="button" aria-pressed="false">Gia dụng</li>
+  </ul>
+</nav>
+
+<main>
+  <div id="productGrid" class="product-grid" aria-live="polite" aria-relevant="additions removals"></div>
+</main>
+
+<!-- Cart Sidebar -->
+<div class="cart-sidebar" id="cartSidebar" aria-hidden="true" aria-label="Giỏ hàng" role="dialog" aria-modal="true">
+  <div class="cart-header">
+    <h2>Giỏ hàng</h2>
+    <span class="close-cart" id="closeCartBtn" title="Đóng giỏ hàng" role="button" tabindex="0" aria-label="Đóng giỏ hàng">&times;</span>
+  </div>
+  <div class="cart-items" id="cartItemsContainer" tabindex="0"></div>
+  <div class="cart-footer">
+    <div class="cart-total" id="cartTotal" aria-live="polite" aria-atomic="true">Tổng: 0₫</div>
+    <button class="checkout-btn" id="checkoutBtn" disabled>Thanh toán</button>
+  </div>
+</div>
+
+<!-- Wishlist Sidebar -->
+<div class="cart-sidebar" id="wishlistSidebar" aria-hidden="true" aria-label="Danh sách yêu thích" role="dialog" aria-modal="true" style="right:-400px; background:#fff6f4;">
+  <div class="cart-header">
+    <h2>Danh sách yêu thích</h2>
+    <span class="close-cart" id="closeWishlistBtn" title="Đóng danh sách yêu thích" role="button" tabindex="0" aria-label="Đóng danh sách yêu thích">&times;</span>
+  </div>
+  <div class="cart-items" id="wishlistItemsContainer" tabindex="0"></div>
+</div>
+
+<!-- Product Detail Modal -->
+<div class="modal-overlay" id="productModal" role="dialog" aria-modal="true" aria-labelledby="modalProductName" tabindex="-1">
+  <div class="modal-content">
+    <span class="modal-close" id="modalCloseBtn" role="button" tabindex="0" aria-label="Đóng thông tin sản phẩm">&times;</span>
+    <img src="" alt="" class="modal-image" id="modalImage" />
+    <h2 class="modal-name" id="modalProductName"></h2>
+    <p class="modal-price" id="modalPrice"></p>
+    <p class="modal-description" id="modalDescription"></p>
+    <button class="modal-add-cart-btn" id="modalAddCartBtn" aria-label="Thêm vào giỏ hàng">Thêm vào giỏ</button>
+  </div>
+</div>
+
+<!-- Payment Modal -->
+<div class="modal-overlay" id="paymentModal" role="dialog" aria-modal="true" tabindex="-1">
+  <div class="payment-modal-content" role="document">
+    <h2>Chọn phương thức thanh toán</h2>
+    <form id="paymentForm" class="payment-methods">
+      <label><input type="radio" name="paymentMethod" value="creditCard" required /> Thẻ tín dụng/Thẻ ghi nợ</label>
+      <label><input type="radio" name="paymentMethod" value="momo" /> Ví MoMo</label>
+      <label><input type="radio" name="paymentMethod" value="cod" /> Thanh toán khi nhận hàng (COD)</label>
+      <div class="payment-btn-group">
+        <button type="button" id="paymentCancelBtn">Hủy</button>
+        <button type="submit">Thanh toán</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Login Modal -->
+<div class="login-overlay" id="loginModal" role="dialog" aria-modal="true" tabindex="-1">
+  <div class="login-box">
+    <h2>Đăng nhập</h2>
+    <form id="loginForm">
+      <label for="usernameInput">Tên đăng nhập</label>
+      <input type="text" id="usernameInput" required placeholder="Tên đăng nhập" autocomplete="username"/>
+      <label for="passwordInput">Mật khẩu</label>
+      <input type="password" id="passwordInput" required placeholder="Mật khẩu" autocomplete="current-password" />
+      <button type="submit">Đăng nhập</button>
+    </form>
+    <span class="login-close" id="loginCloseBtn" role="button" tabindex="0" aria-label="Đóng đăng nhập">&times;</span>
+  </div>
+</div>
+
+<!-- Profile Page -->
+<section id="profilePage" aria-live="polite" aria-label="Trang thông tin cá nhân">
+  <h2>Trang cá nhân</h2>
+  <form id="profileForm">
+    <label for="profileUsername">Tên đăng nhập</label>
+    <input type="text" id="profileUsername" disabled />
+    <label for="profileEmail">Email</label>
+    <input type="email" id="profileEmail" placeholder="email@example.com" required />
+    <label for="profilePhone">Điện thoại</label>
+    <input type="tel" id="profilePhone" placeholder="0123456789" />
+    <button type="submit">Cập nhật thông tin</button>
+  </form>
+</section>
+
+<!-- Toast notification -->
+<div class="toast" id="toast" role="alert" aria-live="assertive" aria-atomic="true"></div>
+
+<script>
+  // PRODUCTS DATA (with multiple images and full description)
+  const products = [
+    {
+      id: 1,
+      name: 'Điện thoại Samsung Galaxy S22',
+      price: 16500000,
+      category: 'thietbi',
+      images: [
+        'https://cf.shopee.vn/file/f0105d2d0f53a7f35994a9c4768116bc_tn',
+        'https://image.samsung.com/vn/smartphones/galaxy-s22/buy/lifestyle/sep1_carousel_mo_1.jpg',
+        'https://image.samsung.com/vn/smartphones/galaxy-s22/buy/lifestyle/sep1_carousel_mo_3.jpg'
+      ],
+      description: 'Điện thoại thông minh mới nhất Samsung Galaxy S22, chip mạnh mẽ Exynos 2200, camera sắc nét 50MP, pin lâu dài, màn hình AMOLED 6.1 inch.',
+    },
+    {
+      id: 2,
+      name: 'Tai nghe Bluetooth JBL Tune 510BT',
+      price: 990000,
+      category: 'thietbi',
+      images: [
+        'https://cf.shopee.vn/file/3fe5a32ef487b3e37cfe3b037ae4505d_tn',
+        'https://cdn.jbl.com/_ui/media/16a171104c4a51/jbl_tune_510bt_black_003_left.png'
+      ],
+      description: 'Tai nghe Bluetooth JBL Tune 510BT chất lượng âm thanh cao, sạc nhanh, pin 40 giờ, thiết kế nhẹ và thời trang phù hợp mọi hoạt động.',
+    },
+    {
+      id: 3,
+      name: 'Áo thun nam cổ tròn basic',
+      price: 99000,
+      category: 'thoitrang',
+      images: [
+        'https://cf.shopee.vn/file/c324729d034cb527e6f5a621032d1b47_tn',
+        'https://cf.shopee.vn/file/8a522c6aeae3ebf00d10c7aa9de1ce30.jpg'
+      ],
+      description: 'Áo thun nam cổ tròn basic, chất liệu cotton mềm mại, thoáng mát, dễ phối đồ phù hợp mọi dịp.',
+    },
+    {
+      id: 4,
+      name: 'Váy liền nữ công sở',
+      price: 299000,
+      category: 'thoitrang',
+      images: [
+        'https://cf.shopee.vn/file/38be824de4949dac8a894ec303f5d57c_tn',
+        'https://cf.shopee.vn/file/d62f4c4b3fbb11d37c98685d43c67652.jpg'
+      ],
+      description: 'Váy liền nữ công sở thanh lịch, kiểu dáng hiện đại, chất liệu cao cấp, tạo cảm giác thoải mái cả ngày.',
+    },
+    {
+      id: 5,
+      name: 'Nồi chiên không dầu Lock&Lock',
+      price: 1990000,
+      category: 'giadung',
+      images: [
+        'https://cf.shopee.vn/file/7ebbb6cbec0625873036f66778902a6a_tn',
+        'https://cf.shopee.vn/file/eb9a26eeb3e10759ac553f5eeeb97225.jpg'
+      ],
+      description: 'Nồi chiên không dầu Lock&Lock dung tích lớn, công nghệ chiên nướng không dầu, giữ nguyên hương vị và dinh dưỡng.',
+    },
+    {
+      id: 6,
+      name: 'Serum Vitamin C làm sáng da',
+      price: 360000,
+      category: 'lamdep',
+      images: [
+        'https://cf.shopee.vn/file/fdce6d8039898ae8c6cf69d6cd439eca_tn',
+        'https://cf.shopee.vn/file/40f44bfdb343acd26945e947734be83a.jpg'
+      ],
+      description: 'Serum Vitamin C dưỡng da làm sáng, ngăn ngừa nám, chống lão hóa hiệu quả, phù hợp cho mọi loại da.',
+    }
+    // Add more products with multiple images similarly here...
+  ];
+
+  // UTIL FUNCTIONS
+
+  function formatVND(num) {
+    return num.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
+  }
+
+  function showToast(msg) {
+    toast.textContent = msg;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 2500);
+  }
+
+  // MANAGE LOCAL STORAGE FOR CART, WISHLIST, USER
+  let cart = JSON.parse(localStorage.getItem('cart')) || {};
+  let wishlist = JSON.parse(localStorage.getItem('wishlist')) || {};
+  let user = JSON.parse(localStorage.getItem('user')) || null;
+
+  function saveCart() { localStorage.setItem('cart', JSON.stringify(cart)); }
+  function saveWishlist() { localStorage.setItem('wishlist', JSON.stringify(wishlist)); }
+  function saveUser() { localStorage.setItem('user', JSON.stringify(user)); }
+
+  // ELEMENTS
+  const productGrid = document.getElementById('productGrid');
+  const categoryList = document.getElementById('categoryList');
+  const searchInput = document.getElementById('searchInput');
+  const searchBtn = document.getElementById('searchBtn');
+  const cartCount = document.getElementById('cartCount');
+  const cartIcon = document.getElementById('cartIcon');
+  const cartSidebar = document.getElementById('cartSidebar');
+  const closeCartBtn = document.getElementById('closeCartBtn');
+  const cartItemsContainer = document.getElementById('cartItemsContainer');
+  const cartTotal = document.getElementById('cartTotal');
+  const checkoutBtn = document.getElementById('checkoutBtn');
+  const wishlistIcon = document.getElementById('wishlistIcon');
+  const wishlistSidebar = document.getElementById('wishlistSidebar');
+  const closeWishlistBtn = document.getElementById('closeWishlistBtn');
+  const wishlistItemsContainer = document.getElementById('wishlistItemsContainer');
+  const wishlistCount = document.getElementById('wishlistCount');
+  const productModal = document.getElementById('productModal');
+  const modalCloseBtn = document.getElementById('modalCloseBtn');
+  const modalImage = document.getElementById('modalImage');
+  const modalProductName = document.getElementById('modalProductName');
+  const modalPrice = document.getElementById('modalPrice');
+  const modalDescription = document.getElementById('modalDescription');
+  const modalAddCartBtn = document.getElementById('modalAddCartBtn');
+  const loginModal = document.getElementById('loginModal');
+  const loginForm = document.getElementById('loginForm');
+  const loginCloseBtn = document.getElementById('loginCloseBtn');
+  const usernameInput = document.getElementById('usernameInput');
+  const passwordInput = document.getElementById('passwordInput');
+  const profilePage = document.getElementById('profilePage');
+  const profileForm = document.getElementById('profileForm');
+  const profileUsername = document.getElementById('profileUsername');
+  const profileEmail = document.getElementById('profileEmail');
+  const profilePhone = document.getElementById('profilePhone');
+  const userIcon = document.getElementById('userIcon');
+
+  // INITIAL STATE
+  let currentCategory = 'all';
+  let currentSearchTerm = '';
+  let modalCurrentProductId = null;
+
+  // RENDER PRODUCTS FUNCTION
+  function renderProducts() {
+    productGrid.innerHTML = '';
+    let filtered = products.filter(p => {
+      return (currentCategory === 'all' || p.category === currentCategory) &&
+             p.name.toLowerCase().includes(currentSearchTerm.toLowerCase());
+    });
+    if(filtered.length === 0) {
+      productGrid.innerHTML = '<p style="color:#999; text-align:center;">Không tìm thấy sản phẩm phù hợp.</p>';
+      return;
+    }
+    filtered.forEach(product => {
+      const card = document.createElement('div');
+      card.className = 'product-card';
+      card.setAttribute('tabindex', '0');
+      card.innerHTML = `
+        <img src="${product.images[0]}" alt="${product.name}" class="product-image" loading="lazy" />
+        <div class="product-name" title="${product.name}">${product.name}</div>
+        <div class="product-price">${formatVND(product.price)}</div>
+        <button class="add-cart-btn" data-id="${product.id}" aria-label="Thêm ${product.name} vào giỏ hàng">Thêm vào giỏ</button>
+        <button class="wishlist-btn" data-id="${product.id}" title="Thêm yêu thích">&#10084;</button>
+      `;
+      productGrid.appendChild(card);
+    });
+  }
+
+  // CART FUNCTIONS
+  function updateCartCount() {
+    const count = Object.values(cart).reduce((acc, i) => acc + i.qty, 0);
+    if(count > 0){
+      cartCount.style.display = 'flex';
+      cartCount.textContent = count;
+    } else {
+      cartCount.style.display = 'none';
+    }
+  }
+
+  function renderCartItems() {
+    cartItemsContainer.innerHTML = '';
+    const keys = Object.keys(cart);
+    if(keys.length === 0) {
+      cartItemsContainer.innerHTML = '<p style="color:#999; font-style:italic;">Chưa có sản phẩm nào trong giỏ.</p>';
+      checkoutBtn.disabled = true;
+      cartTotal.textContent = 'Tổng: 0₫';
+      return;
+    }
+    let total = 0;
+    keys.forEach(pid => {
+      const item = cart[pid];
+      total += item.price * item.qty;
+      const el = document.createElement('div');
+      el.className = 'cart-item';
+      el.innerHTML = `
+        <img src="${item.images[0]}" alt="${item.name}">
+        <div class="cart-item-details">
+          <div class="cart-item-name" title="${item.name}">${item.name}</div>
+          <div class="cart-item-price">${formatVND(item.price)}</div>
+          <div class="cart-qty-controls">
+            <button class="qty-btn" data-id="${item.id}" data-action="dec" aria-label="Giảm số lượng">-</button>
+            <span class="qty-count" aria-live="polite">${item.qty}</span>
+            <button class="qty-btn" data-id="${item.id}" data-action="inc" aria-label="Tăng số lượng">+</button>
+          </div>
+        </div>
+        <button class="remove-item-btn" data-id="${item.id}" title="Xóa" aria-label="Xóa sản phẩm">&times;</button>
+      `;
+      cartItemsContainer.appendChild(el);
+    });
+    cartTotal.textContent = `Tổng: ${formatVND(total)}`;
+    checkoutBtn.disabled = false;
+  }
+
+  function openCart() {
+    cartSidebar.classList.add('open');
+    cartSidebar.setAttribute('aria-hidden', 'false');
+    profilePage.classList.remove('active');
+  }
+  function closeCart() {
+    cartSidebar.classList.remove('open');
+    cartSidebar.setAttribute('aria-hidden', 'true');
+  }
+
+  // WISHLIST FUNCTIONS
+  function updateWishlistCount() {
+    const count = Object.keys(wishlist).length;
+    if(count > 0){
+      wishlistCount.style.display = 'flex';
+      wishlistCount.textContent = count;
+    } else {
+      wishlistCount.style.display = 'none';
+    }
+  }
+  function renderWishlistItems() {
+    wishlistItemsContainer.innerHTML = '';
+    if(Object.keys(wishlist).length === 0) {
+      wishlistItemsContainer.innerHTML = '<p style="color:#999; font-style:italic;">Không có sản phẩm yêu thích.</p>';
+      return;
+    }
+    Object.values(wishlist).forEach(item => {
+      const el = document.createElement('div');
+      el.className = 'cart-item';
+      el.innerHTML = `
+        <img src="${item.images[0]}" alt="${item.name}">
+        <div class="cart-item-details">
+          <div class="cart-item-name" title="${item.name}">${item.name}</div>
+          <div class="cart-item-price">${formatVND(item.price)}</div>
+        </div>
+        <button class="remove-wishlist-btn" data-id="${item.id}" title="Xóa khỏi yêu thích" aria-label="Xóa sản phẩm">&times;</button>
+      `;
+      wishlistItemsContainer.appendChild(el);
+    });
+  }
+  function openWishlist() {
+    wishlistSidebar.classList.add('open');
+    wishlistSidebar.setAttribute('aria-hidden', 'false');
+    profilePage.classList.remove('active');
+  }
+  function closeWishlist() {
+    wishlistSidebar.classList.remove('open');
+    wishlistSidebar.setAttribute('aria-hidden', 'true');
+  }
+
+  // ADD TO CART
+  function addToCart(productId) {
+    if(!user) {
+      openLogin();
+      return;
+    }
+    if(cart[productId]) {
+      cart[productId].qty++;
+    } else {
+      const p = products.find(pr => pr.id == productId);
+      if(p) cart[productId] = {...p, qty:1};
+    }
+    saveCart();
+    updateCartCount();
+    renderCartItems();
+    showToast("Sản phẩm đã được thêm vào giỏ hàng");
+  }
+
+  // CHANGE QUANTITY CART
+  function changeCartQty(productId, action) {
+    if(cart[productId]) {
+      if(action == 'inc') {
+        cart[productId].qty++;
+      } else if(action == 'dec') {
+        cart[productId].qty--;
+        if(cart[productId].qty <= 0) {
+          removeFromCart(productId);
+          return;
+        }
+      }
+      saveCart();
+      updateCartCount();
+      renderCartItems();
+    }
+  }
+  // REMOVE FROM CART
+  function removeFromCart(productId) {
+    delete cart[productId];
+    saveCart();
+    updateCartCount();
+    renderCartItems();
+  }
+
+  // TOGGLE WISHLIST
+  function toggleWishlist(productId) {
+    if(!user) {
+      openLogin();
+      return;
+    }
+    if(wishlist[productId]) {
+      delete wishlist[productId];
+      showToast('Đã xóa khỏi yêu thích');
+    } else {
+      const p = products.find(pr => pr.id == productId);
+      if(p) wishlist[productId] = {...p};
+      showToast('Đã thêm vào yêu thích');
+    }
+    saveWishlist();
+    updateWishlistCount();
+    renderWishlistItems();
+  }
+
+  // PRODUCT MODAL
+//   function openProductModal(productId) {
+//     modalCurrentProductId = productId;
+//     const p = products.find(pr => pr.id == productId);
+//     if(!p) return;
+//     modalImage.src = p.images[0];
+//     modalImage.alt = p.name;
+//     modalProductName.textContent = p.name;
+//     modalPrice.textContent = formatVND(p.price);
+//     modalDescription.textContent = p.description;
+//     productModal.classList.add('active');
+//   }
+function openProductPage(productId) {
+  const product = products.find(p => p.id == productId);
+  if (!product) return;
+  localStorage.setItem('selectedProduct', JSON.stringify(product));
+  window.location.href = `product.html?id=${productId}`;
+}
+
+  function closeProductModal() {
+    productModal.classList.remove('active');
+    modalCurrentProductId = null;
+  }
+
+  // LOGIN MODAL đăng nhập
+  function openLogin() {
+    loginModal.classList.add('active');
+  }
+  function closeLogin() {
+    loginModal.classList.remove('active');
+  }
+  function login(username, password) {
+    if(username === 'binhdepzai' && password === '123') {
+      user = { username: 'demo', email: 'demo@example.com', phone: '0123456789' };
+      saveUser();
+      closeLogin();
+      showProfile();
+      showToast('Đăng nhập thành công');
+    } else {
+      alert('Tên đăng nhập hoặc mật khẩu không đúng!');
+    }
+  }
+  function saveUser() {
+    localStorage.setItem('user', JSON.stringify(user));
+  }
+  function loadUser() {
+    const u = localStorage.getItem('user');
+    if(u) user = JSON.parse(u);
+  }
+  function logout() {
+    user = null;
+    cart = {};
+    wishlist = {};
+    localStorage.removeItem('user');
+    localStorage.removeItem('cart');
+    localStorage.removeItem('wishlist');
+    hideProfile();
+    updateCartCount();
+    updateWishlistCount();
+    renderCartItems();
+    renderWishlistItems();
+    showToast('Đã đăng xuất');
+  }
+  function showProfile() {
+    profilePage.classList.add('active');
+    cartSidebar.classList.remove('open');
+    wishlistSidebar.classList.remove('open');
+    main.style.display = 'none';
+    profileUsername.value = user.username;
+    profileEmail.value = user.email || '';
+    profilePhone.value = user.phone || '';
+    userIcon.title = 'Tài khoản';
+  }
+  function hideProfile() {
+    profilePage.classList.remove('active');
+    main.style.display = 'block';
+    userIcon.title = 'Đăng nhập';
+  }
+
+  // PAYMENT MODAL
+  const paymentModal = document.getElementById('paymentModal');
+  const paymentCancelBtn = document.getElementById('paymentCancelBtn');
+  const paymentForm = document.getElementById('paymentForm');
+
+  function openPayment() {
+    if (!user) {
+      openLogin();
+      return;
+    }
+    if(Object.keys(cart).length === 0){
+      alert('Giỏ hàng trống!');
+      return;
+    }
+    paymentModal.classList.add('active');
+  }
+
+  function closePayment() {
+    paymentForm.reset();
+    paymentModal.classList.remove('active');
+  }
+
+  function completePayment(e) {
+    e.preventDefault();
+    const method = paymentForm.elements['paymentMethod'].value;
+    alert(`Thanh toán thành công bằng ${method}`);
+    cart = {};
+    saveCart();
+    updateCartCount();
+    renderCartItems();
+    closePayment();
+    closeCart();
+    showToast('Cảm ơn bạn đã thanh toán!');
+  }
+
+  // EVENT LISTENERS
+  searchBtn.addEventListener('click', () => {
+    currentSearchTerm = searchInput.value.trim();
+    renderProducts();
+  });
+  searchInput.addEventListener('keydown', e => {
+    if(e.key === 'Enter'){
+      e.preventDefault();
+      searchBtn.click();
+    }
+  });
+  categoryList.addEventListener('click', e => {
+    if(e.target.tagName === 'LI') {
+      currentCategory = e.target.dataset.category;
+      Array.from(categoryList.children).forEach(li => li.classList.remove('active'));
+      e.target.classList.add('active');
+      renderProducts();
+    }
+  });
+  productGrid.addEventListener('click', e => {
+    if(e.target.classList.contains('add-cart-btn')){
+      addToCart(e.target.dataset.id);
+    } else if(e.target.classList.contains('wishlist-btn')){
+      toggleWishlist(e.target.dataset.id);
+    } else {
+      const card = e.target.closest('.product-card');
+      if(card){
+        const id = card.querySelector('.add-cart-btn').dataset.id;
+        // openProductModal(parseInt(id));
+        openProductPage(parseInt(id));
+
+      }
+    }
+  });
+  modalCloseBtn.addEventListener('click', closeProductModal);
+  productModal.addEventListener('click', e => {
+    if(e.target === productModal) closeProductModal();
+  });
+  modalAddCartBtn.addEventListener('click', () => {
+    if(modalCurrentProductId) {
+      addToCart(modalCurrentProductId);
+      closeProductModal();
+    }
+  });
+  cartIcon.addEventListener('click', openCart);
+  closeCartBtn.addEventListener('click', closeCart);
+  cartItemsContainer.addEventListener('click', e => {
+    if(e.target.classList.contains('qty-btn')) {
+      changeCartQty(e.target.dataset.id, e.target.dataset.action);
+    } else if(e.target.classList.contains('remove-item-btn')) {
+      removeFromCart(e.target.dataset.id);
+    }
+  });
+  wishlistIcon.addEventListener('click', openWishlist);
+  closeWishlistBtn.addEventListener('click', closeWishlist);
+  wishlistItemsContainer.addEventListener('click', e => {
+    if(e.target.classList.contains('remove-wishlist-btn')) {
+      toggleWishlist(e.target.dataset.id);
+      renderWishlistItems();
+    }
+  });
+  checkoutBtn.addEventListener('click', openPayment);
+  paymentCancelBtn.addEventListener('click', closePayment);
+  paymentForm.addEventListener('submit', completePayment);
+  userIcon.addEventListener('click', () => {
+    if(user) {
+      showProfile();
+    } else {
+      openLogin();
+    }
+  });
+  loginCloseBtn.addEventListener('click', closeLogin);
+  loginForm.addEventListener('submit', e => {
+    e.preventDefault();
+    login(usernameInput.value.trim(), passwordInput.value);
+  });
+  profileForm.addEventListener('submit', e => {
+    e.preventDefault();
+    user.email = profileEmail.value.trim();
+    user.phone = profilePhone.value.trim();
+    saveUser();
+    alert('Cập nhật thông tin thành công!');
+  });
+
+  // INITIALIZE
+  renderProducts();
+  updateCartCount();
+  renderCartItems();
+  updateWishlistCount();
+  renderWishlistItems();
+  if(user){
+    userIcon.title = 'Tài khoản';
+  }
+
+</script>
+
+</body>
+</html>
+
